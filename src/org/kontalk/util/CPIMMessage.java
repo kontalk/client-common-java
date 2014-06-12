@@ -23,7 +23,7 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.XmppDateTime;
 
 
 /**
@@ -77,14 +77,10 @@ public class CPIMMessage {
 		return mBody;
 	}
 
-    @SuppressWarnings("deprecation")
 	public String toString() {
         if (mBuf == null) {
-        	String date;
-        	// we must use this because StringUtils#formatXEP0082Date doesn't seem right
-        	synchronized (StringUtils.XEP_0082_UTC_FORMAT) {
-        		date = StringUtils.XEP_0082_UTC_FORMAT.format(mDate);
-        	}
+        	String date = XmppDateTime.DateFormatType
+        	    .XEP_0082_DATETIME_PROFILE.format(mDate);
 
             mBuf = new StringBuilder("Content-type: ")
                 .append(TYPE)
@@ -163,7 +159,8 @@ public class CPIMMessage {
     	// fourth pass: message content
     	contents = p.getData();
 
-    	Date parsedDate = StringUtils.parseDate(date);
+    	Date parsedDate = XmppDateTime.DateFormatType
+    	    .XEP_0082_DATETIME_PROFILE.parse(date);
     	return new CPIMMessage(from, to, parsedDate, type, contents);
     }
 
@@ -197,7 +194,7 @@ public class CPIMMessage {
     		try {
 	    		String line = mData.readLine();
 
-	    		if (line != null && line.length() > 0) {
+	    		if (line != null && line.trim().length() > 0) {
 	    			int sep = line.indexOf(':');
 	    			if (sep >= 0) {
 	    				String name = line.substring(0, sep).trim();
