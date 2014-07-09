@@ -1,2 +1,6 @@
 /bin
+/build
+/lib
 /.settings
+*.iml
+.gradle

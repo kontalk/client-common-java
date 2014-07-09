@@ -9,4 +9,14 @@ by all the clients.
 Build requirements:
 
 * [Smack](http://www.igniterealtime.org/projects/smack/) 4.0.0
-* [KXML](http://www.kxml.org/)
+* [kXML](http://www.kxml.org/)
+
+
+Building
+========
+
+Building is automated via Gradle:
+
+~~~
+./gradlew assemble
+~~~

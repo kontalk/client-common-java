@@ -1,0 +1,13 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.igniterealtime.smack:smack-core:4.0.0'
+    compile 'org.igniterealtime.smack:smack-tcp:4.0.0'
+    compile 'org.igniterealtime.smack:smack-extensions:4.0.0'
+    compile 'org.igniterealtime.smack:smack-resolver-dnsjava:4.0.0'
+    compile 'net.sf.kxml:kxml2:2.3.0'
+}
