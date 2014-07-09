@@ -1,0 +1,21 @@
+apply plugin: 'java'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.12.+'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile files('lib/asmack-android-19-4.0.0.jar')
+    compile ('net.sf.kxml:kxml2:2.3.0') {
+        transitive = true
+    }
+}
