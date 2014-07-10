@@ -15,7 +15,13 @@ Build requirements:
 Building
 ========
 
-Building is automated via Gradle:
+Building is automated via Gradle, but first you have to choose a build file:
+
+~~~
+./setup [asmack|smack]
+~~~
+
+This will copy the right `build.gradle` file. Then run Gradle as usual:
 
 ~~~
 ./gradlew assemble
