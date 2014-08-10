@@ -35,15 +35,17 @@ public class OutOfBandData implements PacketExtension {
     private final String mUrl;
     private final String mMime;
     private final long mLength;
+    private final boolean mEncrypted;
 
     public OutOfBandData(String url) {
-        this(url, null, -1);
+        this(url, null, -1, false);
     }
 
-    public OutOfBandData(String url, String mime, long length) {
+    public OutOfBandData(String url, String mime, long length, boolean encrypted) {
         mUrl = url;
         mMime = mime;
         mLength = length;
+        mEncrypted = encrypted;
     }
 
     @Override
@@ -68,6 +70,10 @@ public class OutOfBandData implements PacketExtension {
         return mLength;
     }
 
+    public boolean isEncrypted() {
+        return mEncrypted;
+    }
+
     @Override
     public String toXML() {
         /*
@@ -83,6 +89,9 @@ public class OutOfBandData implements PacketExtension {
         if (mLength >= 0)
             xml.append(String.format(" length='%d'", mLength));
 
+        if (mEncrypted)
+            xml.append(" encrypted='true'");
+
         xml
             .append(">")
             // TODO should we escape this?
@@ -97,6 +106,7 @@ public class OutOfBandData implements PacketExtension {
         public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
             String url = null, mime = null;
             long length = -1;
+            boolean encrypted = false;
             boolean in_url = false, done = false;
 
             while (!done)
@@ -115,6 +125,8 @@ public class OutOfBandData implements PacketExtension {
                         catch (Exception e) {
                             // ignored
                         }
+                        String _encrypted = parser.getAttributeValue(null, "encrypted");
+                        encrypted = Boolean.parseBoolean(_encrypted);
                     }
 
                 }
@@ -130,7 +142,7 @@ public class OutOfBandData implements PacketExtension {
             }
 
             if (url != null)
-                return new OutOfBandData(url, mime, length);
+                return new OutOfBandData(url, mime, length, encrypted);
             else
                 return null;
         }
