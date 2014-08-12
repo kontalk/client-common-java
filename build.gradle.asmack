@@ -10,11 +10,14 @@ buildscript {
 }
 
 repositories {
+    maven {
+        url 'https://oss.sonatype.org/content/repositories/snapshots'
+    }
     mavenCentral()
 }
 
 dependencies {
-    compile files('lib/asmack-android-19-4.0.0.jar')
+    compile "org.igniterealtime.smack:smack-android:4.1.0-alpha1-SNAPSHOT"
     compile ('net.sf.kxml:kxml2:2.3.0') {
         transitive = true
     }

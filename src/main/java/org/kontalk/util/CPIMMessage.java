@@ -23,7 +23,7 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.jivesoftware.smack.util.XmppDateTime;
+import org.jxmpp.util.XmppDateTime;
 
 
 /**

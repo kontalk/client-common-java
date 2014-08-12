@@ -46,7 +46,7 @@ public class BlockingCommand extends IQ {
 	private List<String> mJidList;
 
 	public BlockingCommand(String command) {
-		setType(IQ.Type.SET);
+		setType(IQ.Type.set);
 		mCommand = command;
 	}
 
@@ -115,7 +115,7 @@ public class BlockingCommand extends IQ {
 	public static BlockingCommand blocklist() {
 		if (sBlocklist == null) {
 			sBlocklist = new BlockingCommand(BLOCKLIST);
-			sBlocklist.setType(IQ.Type.GET);
+			sBlocklist.setType(IQ.Type.get);
 		}
 
 		return sBlocklist;
