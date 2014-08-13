@@ -89,8 +89,8 @@ public class SubscribePublicKey implements PacketExtension {
 
         if (mFingerprint != null)
             buf.append("<print>")
-            .append(mFingerprint)
-            .append("</print>");
+                .append(mFingerprint)
+                .append("</print>");
 
         buf.append("</")
             .append(ELEMENT_NAME)

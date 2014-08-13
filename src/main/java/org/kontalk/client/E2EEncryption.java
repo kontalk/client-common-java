@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.kontalk.client;
 
 import org.jivesoftware.smack.packet.PacketExtension;
@@ -25,82 +26,82 @@ import org.xmlpull.v1.XmlPullParser;
 
 /**
  * Very basic e2e (RFC 3923) extension.
+ * http://tools.ietf.org/html/rfc3923
  * @author Daniele Ricci
- * @see http://tools.ietf.org/html/rfc3923
  */
 public class E2EEncryption implements PacketExtension {
-	public static final String ELEMENT_NAME = "e2e";
-	public static final String NAMESPACE = "urn:ietf:params:xml:ns:xmpp-e2e";
+    public static final String ELEMENT_NAME = "e2e";
+    public static final String NAMESPACE = "urn:ietf:params:xml:ns:xmpp-e2e";
 
-	private byte[] mData;
-	private String mEncoded;
+    private byte[] mData;
+    private String mEncoded;
 
-	public E2EEncryption(byte[] data) {
-		mData = data;
-	}
+    public E2EEncryption(byte[] data) {
+        mData = data;
+    }
 
-	public E2EEncryption(String encoded) {
-		mEncoded = encoded;
-		mData = Base64.decode(encoded);
-	}
+    public E2EEncryption(String encoded) {
+        mEncoded = encoded;
+        mData = Base64.decode(encoded);
+    }
 
-	@Override
-	public String getElementName() {
-		return ELEMENT_NAME;
-	}
+    @Override
+    public String getElementName() {
+        return ELEMENT_NAME;
+    }
 
-	@Override
-	public String getNamespace() {
-		return NAMESPACE;
-	}
+    @Override
+    public String getNamespace() {
+        return NAMESPACE;
+    }
 
-	public byte[] getData() {
-		return mData;
-	}
+    public byte[] getData() {
+        return mData;
+    }
 
-	@Override
-	public String toXML() {
-		if (mEncoded == null)
-			mEncoded = Base64.encodeBytes(mData, Base64.DONT_BREAK_LINES);
+    @Override
+    public String toXML() {
+        if (mEncoded == null)
+            mEncoded = Base64.encodeBytes(mData, Base64.DONT_BREAK_LINES);
 
-		return new StringBuilder()
-			.append('<')
-			.append(ELEMENT_NAME)
-			.append(" xmlns='")
-			.append(NAMESPACE)
-			.append("'><![CDATA[")
-			.append(mEncoded)
-			.append("]]></")
-			.append(ELEMENT_NAME)
-			.append('>')
-			.toString();
-	}
+        return new StringBuilder()
+            .append('<')
+            .append(ELEMENT_NAME)
+            .append(" xmlns='")
+            .append(NAMESPACE)
+            .append("'><![CDATA[")
+            .append(mEncoded)
+            .append("]]></")
+            .append(ELEMENT_NAME)
+            .append('>')
+            .toString();
+    }
 
-	public static class Provider implements PacketExtensionProvider {
+    public static class Provider implements PacketExtensionProvider {
 
-		@Override
-		public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
-			boolean done = false;
-			String data = null;
+        @Override
+        public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+            boolean done = false;
+            String data = null;
 
-			while (!done) {
-				int eventType = parser.next();
+            while (!done) {
+                int eventType = parser.next();
 
-				if (eventType == XmlPullParser.TEXT) {
-					data = parser.getText();
-				}
-				else if (eventType == XmlPullParser.END_TAG) {
-					if (ELEMENT_NAME.equals(parser.getName()))
-						done = true;
-				}
-			}
+                if (eventType == XmlPullParser.TEXT) {
+                    data = parser.getText();
+                }
+                else if (eventType == XmlPullParser.END_TAG) {
+                    if (ELEMENT_NAME.equals(parser.getName()))
+                        done = true;
+                }
+            }
 
-			if (data != null)
-				return new E2EEncryption(data);
-			else
-				return null;
-		}
+            if (data != null)
+                return new E2EEncryption(data);
+            else
+                return null;
+        }
 
-	}
+    }
 
 }

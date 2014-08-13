@@ -32,35 +32,35 @@ import org.xmlpull.v1.XmlPullParser;
  * @author Daniele Ricci
  */
 public class BlockingCommand extends IQ {
-	public static final String NAMESPACE = "urn:xmpp:blocking";
+    public static final String NAMESPACE = "urn:xmpp:blocking";
 
-	public static final String BLOCKLIST = "blocklist";
-	public static final String BLOCK = "block";
-	public static final String UNBLOCK = "unblock";
-	public static final String UNALLOW = "unallow";
+    public static final String BLOCKLIST = "blocklist";
+    public static final String BLOCK = "block";
+    public static final String UNBLOCK = "unblock";
+    public static final String UNALLOW = "unallow";
 
-	// might be used often, better keeping a cache of it
-	private static BlockingCommand sBlocklist;
+    // might be used often, better keeping a cache of it
+    private static BlockingCommand sBlocklist;
 
-	private final String mCommand;
-	private List<String> mJidList;
+    private final String mCommand;
+    private List<String> mJidList;
 
-	public BlockingCommand(String command) {
-		setType(IQ.Type.set);
-		mCommand = command;
-	}
+    public BlockingCommand(String command) {
+        setType(IQ.Type.set);
+        mCommand = command;
+    }
 
-	public BlockingCommand(String command, String jid) {
-		this(command);
+    public BlockingCommand(String command, String jid) {
+        this(command);
 
-		mJidList = new LinkedList<String>();
-		mJidList.add(jid);
-	}
+        mJidList = new LinkedList<String>();
+        mJidList.add(jid);
+    }
 
-	private BlockingCommand(String command, List<String> jidList) {
-		this(command);
-		mJidList = jidList;
-	}
+    private BlockingCommand(String command, List<String> jidList) {
+        this(command);
+        mJidList = jidList;
+    }
 
 	/* TODO
 	public BlockingCommand(IQ iq) {
@@ -68,64 +68,64 @@ public class BlockingCommand extends IQ {
 	}
 	*/
 
-	public List<String> getItems() {
-		return mJidList;
-	}
+    public List<String> getItems() {
+        return mJidList;
+    }
 
-	@Override
-	public String getChildElementXML() {
-		StringBuilder b = new StringBuilder()
-			.append('<')
-			.append(mCommand)
-			.append(" xmlns='")
-			.append(NAMESPACE)
-			.append("'");
+    @Override
+    public String getChildElementXML() {
+        StringBuilder b = new StringBuilder()
+            .append('<')
+            .append(mCommand)
+            .append(" xmlns='")
+            .append(NAMESPACE)
+            .append("'");
 
-		if (mJidList != null && mJidList.size() > 0) {
-			b.append('>');
-			for (String jid: mJidList) {
-				b.append("<item jid='")
-					.append(jid)
-					.append("'/>");
-			}
+        if (mJidList != null && mJidList.size() > 0) {
+            b.append('>');
+            for (String jid: mJidList) {
+                b.append("<item jid='")
+                    .append(jid)
+                    .append("'/>");
+            }
 
-			b.append("</")
-				.append(mCommand)
-				.append('>');
-		}
-		else {
-			b.append("/>");
-		}
+            b.append("</")
+                .append(mCommand)
+                .append('>');
+        }
+        else {
+            b.append("/>");
+        }
 
-		return b.toString();
-	}
+        return b.toString();
+    }
 
-	public static BlockingCommand block(String jid) {
-		return new BlockingCommand(BLOCK, jid);
-	}
+    public static BlockingCommand block(String jid) {
+        return new BlockingCommand(BLOCK, jid);
+    }
 
-	public static BlockingCommand unblock(String jid) {
-		return new BlockingCommand(UNBLOCK, jid);
-	}
+    public static BlockingCommand unblock(String jid) {
+        return new BlockingCommand(UNBLOCK, jid);
+    }
 
-	public static BlockingCommand unallow(String jid) {
-		return new BlockingCommand(UNALLOW, jid);
-	}
+    public static BlockingCommand unallow(String jid) {
+        return new BlockingCommand(UNALLOW, jid);
+    }
 
-	public static BlockingCommand blocklist() {
-		if (sBlocklist == null) {
-			sBlocklist = new BlockingCommand(BLOCKLIST);
-			sBlocklist.setType(IQ.Type.get);
-		}
+    public static BlockingCommand blocklist() {
+        if (sBlocklist == null) {
+            sBlocklist = new BlockingCommand(BLOCKLIST);
+            sBlocklist.setType(IQ.Type.get);
+        }
 
-		return sBlocklist;
-	}
+        return sBlocklist;
+    }
 
     public static final class Provider implements IQProvider {
 
         @Override
         public IQ parseIQ(XmlPullParser parser) throws Exception {
-        	List<String> jidList = null;
+            List<String> jidList = null;
             boolean in_blocklist = false, done = false;
 
             while (!done)
@@ -138,13 +138,13 @@ public class BlockingCommand extends IQ {
                         in_blocklist = true;
                     }
                     else if (in_blocklist && "item".equals(parser.getName())) {
-                    	String jid = parser.getAttributeValue(null, "jid");
-                    	if (jid != null && jid.length() > 0) {
-                        	if (jidList == null)
-                        		jidList = new LinkedList<String>();
+                        String jid = parser.getAttributeValue(null, "jid");
+                        if (jid != null && jid.length() > 0) {
+                            if (jidList == null)
+                                jidList = new LinkedList<String>();
 
-                    		jidList.add(jid);
-                    	}
+                            jidList.add(jid);
+                        }
                     }
 
                 }

@@ -15,6 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package org.kontalk.util;
 
 import java.io.BufferedReader;
@@ -32,7 +33,7 @@ import org.jxmpp.util.XmppDateTime;
  */
 public class CPIMMessage {
 
-	private static final String MIME_TYPE = "text/plain";
+    private static final String MIME_TYPE = "text/plain";
     private static final String TYPE = "Message/CPIM";
     private static final String CHARSET = "utf-8";
 
@@ -58,29 +59,29 @@ public class CPIMMessage {
     }
 
     public String getFrom() {
-		return mFrom;
-	}
+        return mFrom;
+    }
 
     public String getTo() {
-		return mTo;
-	}
+        return mTo;
+    }
 
     public Date getDate() {
-		return mDate;
-	}
+        return mDate;
+    }
 
     public String getMime() {
-		return mMime;
-	}
+        return mMime;
+    }
 
     public CharSequence getBody() {
-		return mBody;
-	}
+        return mBody;
+    }
 
-	public String toString() {
+    public String toString() {
         if (mBuf == null) {
-        	String date = XmppDateTime.DateFormatType
-        	    .XEP_0082_DATETIME_PROFILE.format(mDate);
+            String date = XmppDateTime.DateFormatType
+                .XEP_0082_DATETIME_PROFILE.format(mDate);
 
             mBuf = new StringBuilder("Content-type: ")
                 .append(TYPE)
@@ -107,127 +108,127 @@ public class CPIMMessage {
 
     /** A very bad CPIM parser. */
     public static CPIMMessage parse(String data) throws ParseException {
-    	CPIMParser p = new CPIMParser(data);
+        CPIMParser p = new CPIMParser(data);
 
-    	String from = null,
-    		to = null,
-    		date = null,
-    		type = null,
-    		contents;
+        String from = null,
+            to = null,
+            date = null,
+            type = null,
+            contents;
 
-    	// first pass: CPIM content type
-    	CPIMParser.CPIMHeader h;
-    	boolean typeOk = false;
-    	while ((h = p.nextHeader()) != null || !typeOk) {
-    		if ("Content-type".equalsIgnoreCase(h.name) && TYPE.equalsIgnoreCase(h.value))
-    			typeOk = true;
-    	}
+        // first pass: CPIM content type
+        CPIMParser.CPIMHeader h;
+        boolean typeOk = false;
+        while ((h = p.nextHeader()) != null || !typeOk) {
+            if ("Content-type".equalsIgnoreCase(h.name) && TYPE.equalsIgnoreCase(h.value))
+                typeOk = true;
+        }
 
-    	if (!typeOk)
-    		throw new ParseException("Invalid content type", 0);
+        if (!typeOk)
+            throw new ParseException("Invalid content type", 0);
 
-    	// second pass: message headers
-    	while ((h = p.nextHeader()) != null) {
-    		if ("From".equalsIgnoreCase(h.name)) {
-    			from = h.value;
-    		}
+        // second pass: message headers
+        while ((h = p.nextHeader()) != null) {
+            if ("From".equalsIgnoreCase(h.name)) {
+                from = h.value;
+            }
 
-    		else if ("To".equalsIgnoreCase(h.name)) {
-    			to = h.value;
+            else if ("To".equalsIgnoreCase(h.name)) {
+                to = h.value;
 
-    			int pos = to.indexOf(';');
-    			if (pos >= 0)
-    				to = to.substring(0, pos).trim();
-    		}
+                int pos = to.indexOf(';');
+                if (pos >= 0)
+                    to = to.substring(0, pos).trim();
+            }
 
-    		else if ("DateTime".equalsIgnoreCase(h.name)) {
-    			date = h.value;
-    		}
-    	}
+            else if ("DateTime".equalsIgnoreCase(h.name)) {
+                date = h.value;
+            }
+        }
 
-    	// third pass: message content type
-    	while ((h = p.nextHeader()) != null) {
-    		if ("Content-type".equalsIgnoreCase(h.name)) {
-    			type = h.value;
+        // third pass: message content type
+        while ((h = p.nextHeader()) != null) {
+            if ("Content-type".equalsIgnoreCase(h.name)) {
+                type = h.value;
 
-    			int pos = type.indexOf(';');
-    			if (pos >= 0)
-    				type = type.substring(0, pos).trim();
-    		}
-    	}
+                int pos = type.indexOf(';');
+                if (pos >= 0)
+                    type = type.substring(0, pos).trim();
+            }
+        }
 
-    	// fourth pass: message content
-    	contents = p.getData();
+        // fourth pass: message content
+        contents = p.getData();
 
-    	Date parsedDate = XmppDateTime.DateFormatType
-    	    .XEP_0082_DATETIME_PROFILE.parse(date);
-    	return new CPIMMessage(from, to, parsedDate, type, contents);
+        Date parsedDate = XmppDateTime.DateFormatType
+            .XEP_0082_DATETIME_PROFILE.parse(date);
+        return new CPIMMessage(from, to, parsedDate, type, contents);
     }
 
     private static class CPIMParser {
 
-    	public static final class CPIMHeader {
-    		public final String name;
-    		public final String value;
+        public static final class CPIMHeader {
+            public final String name;
+            public final String value;
 
-    		public CPIMHeader(String name, String value) {
-    			this.name = name;
-    			this.value = value;
-    		}
+            public CPIMHeader(String name, String value) {
+                this.name = name;
+                this.value = value;
+            }
 
-    		public String toString() {
-    			return this.name + "=" + this.value;
-    		}
-    	}
+            public String toString() {
+                return this.name + "=" + this.value;
+            }
+        }
 
-    	private BufferedReader mData;
+        private BufferedReader mData;
 
-    	public CPIMParser(String data) {
-    		internalSetData(data);
-    	}
+        public CPIMParser(String data) {
+            internalSetData(data);
+        }
 
-    	public void internalSetData(String data) {
-    		mData = new BufferedReader(new StringReader(data));
-    	}
+        public void internalSetData(String data) {
+            mData = new BufferedReader(new StringReader(data));
+        }
 
-    	public CPIMHeader nextHeader() {
-    		try {
-	    		String line = mData.readLine();
+        public CPIMHeader nextHeader() {
+            try {
+                String line = mData.readLine();
 
-	    		if (line != null && line.trim().length() > 0) {
-	    			int sep = line.indexOf(':');
-	    			if (sep >= 0) {
-	    				String name = line.substring(0, sep).trim();
-	    				String value = line.substring(sep + 1).trim();
-	    				return new CPIMHeader(name, value);
-	    			}
-	    		}
+                if (line != null && line.trim().length() > 0) {
+                    int sep = line.indexOf(':');
+                    if (sep >= 0) {
+                        String name = line.substring(0, sep).trim();
+                        String value = line.substring(sep + 1).trim();
+                        return new CPIMHeader(name, value);
+                    }
+                }
 
-    		}
-    		catch (IOException e) {
-    			// not going to happen.
-    		}
+            }
+            catch (IOException e) {
+                // not going to happen.
+            }
 
-    		return null;
-    	}
+            return null;
+        }
 
-    	public String getData() {
-    		// read up all data
-    		StringBuilder buf = new StringBuilder();
-    		int c;
-    		try {
-	    		while ((c = mData.read()) >= 0)
-	    			buf.append((char) c);
+        public String getData() {
+            // read up all data
+            StringBuilder buf = new StringBuilder();
+            int c;
+            try {
+                while ((c = mData.read()) >= 0)
+                    buf.append((char) c);
 
-	    		// reader is no more needed
-	    		mData.close();
-    		}
-    		catch (IOException e) {
-    			// not going to happen.
-    		}
+                // reader is no more needed
+                mData.close();
+            }
+            catch (IOException e) {
+                // not going to happen.
+            }
 
-    		return buf.toString();
-    	}
+            return buf.toString();
+        }
     }
 
 }
