@@ -12,6 +12,5 @@
   </module>
   <module name="TreeWalker">
     <module name="AvoidStarImport"/>
-    <module name="Indentation"/>
   </module>
 </module>
