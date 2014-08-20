@@ -44,7 +44,7 @@ public class ServerlistCommand extends IQ {
 
     public ServerlistCommand() {
         super();
-        setType(Type.set);
+        setType(Type.SET);
     }
 
     @Override

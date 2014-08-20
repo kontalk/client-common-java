@@ -24,7 +24,7 @@ import java.io.StringReader;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.jxmpp.util.XmppDateTime;
+import org.jivesoftware.smack.util.XmppDateTime;
 
 
 /**
