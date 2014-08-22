@@ -8,20 +8,14 @@ by all the clients.
 
 Build requirements:
 
-* [Smack](http://www.igniterealtime.org/projects/smack/) 4.0.0
+* [Smack](http://www.igniterealtime.org/projects/smack/) 4.1.0
 * [kXML](http://www.kxml.org/)
 
 
 Building
 ========
 
-Building is automated via Gradle, but first you have to choose a build file:
-
-~~~
-./setup [asmack|smack]
-~~~
-
-This will copy the right `build.gradle` file. Then run Gradle as usual:
+Building is automated via Gradle:
 
 ~~~
 ./gradlew assemble
