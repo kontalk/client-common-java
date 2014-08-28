@@ -21,4 +21,5 @@ dependencies {
     compile ('net.sf.kxml:kxml2:2.3.0') {
         transitive = true
     }
+    testCompile 'junit:junit:4.+'
 }
