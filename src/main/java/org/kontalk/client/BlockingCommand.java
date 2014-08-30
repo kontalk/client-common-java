@@ -20,7 +20,6 @@ package org.kontalk.client;
 
 import java.util.LinkedList;
 import java.util.List;
-
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
@@ -125,12 +124,21 @@ public class BlockingCommand extends IQ {
 
         @Override
         public IQ parseIQ(XmlPullParser parser) throws Exception {
+            System.out.println("parsing...");
             List<String> jidList = null;
             boolean in_blocklist = false, done = false;
 
+            int eventType = parser.getEventType();
             while (!done)
             {
-                int eventType = parser.next();
+                if (eventType == XmlPullParser.START_TAG)
+                {
+                    if ("blocklist".equals(parser.getName())) {
+                        in_blocklist = true;
+                    }
+                }
+
+                eventType = parser.next();
 
                 if (eventType == XmlPullParser.START_TAG)
                 {
@@ -139,6 +147,7 @@ public class BlockingCommand extends IQ {
                     }
                     else if (in_blocklist && "item".equals(parser.getName())) {
                         String jid = parser.getAttributeValue(null, "jid");
+                        System.out.println("jid: "+jid);
                         if (jid != null && jid.length() > 0) {
                             if (jidList == null)
                                 jidList = new LinkedList<String>();
