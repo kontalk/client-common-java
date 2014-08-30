@@ -128,9 +128,17 @@ public class BlockingCommand extends IQ {
             List<String> jidList = null;
             boolean in_blocklist = false, done = false;
 
+            int eventType = parser.getEventType();
             while (!done)
             {
-                int eventType = parser.next();
+                if (eventType == XmlPullParser.START_TAG)
+                {
+                    if ("blocklist".equals(parser.getName())) {
+                        in_blocklist = true;
+                    }
+                }
+
+                eventType = parser.next();
 
                 if (eventType == XmlPullParser.START_TAG)
                 {
