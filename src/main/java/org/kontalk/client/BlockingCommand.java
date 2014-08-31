@@ -126,18 +126,13 @@ public class BlockingCommand extends IQ {
         @Override
         public IQ parseIQ(XmlPullParser parser) throws Exception {
             List<String> jidList = null;
-            boolean in_blocklist = false, done = false;
+            boolean done = false;
 
-            while (!done)
-            {
+            while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG)
-                {
-                    if ("blocklist".equals(parser.getName())) {
-                        in_blocklist = true;
-                    }
-                    else if (in_blocklist && "item".equals(parser.getName())) {
+                if (eventType == XmlPullParser.START_TAG) {
+                    if ("item".equals(parser.getName())) {
                         String jid = parser.getAttributeValue(null, "jid");
                         if (jid != null && jid.length() > 0) {
                             if (jidList == null)
@@ -148,9 +143,8 @@ public class BlockingCommand extends IQ {
                     }
 
                 }
-                else if (eventType == XmlPullParser.END_TAG)
-                {
-                    if ("blocklist".equals(parser.getName())) {
+                else if (eventType == XmlPullParser.END_TAG) {
+                    if (BLOCKLIST.equals(parser.getName())) {
                         done = true;
                     }
                 }

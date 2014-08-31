@@ -121,22 +121,15 @@ public class BitsOfBinary implements PacketExtension {
 
         @Override
         public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
-            String contents = null, mime = null;
+            String contents = null, mime;
             boolean done = false;
 
-            while (!done)
-            {
+            mime = parser.getAttributeValue(null, "type");
+
+            while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG)
-                {
-                    if (ELEMENT_NAME.equals(parser.getName())) {
-                        mime = parser.getAttributeValue(null, "type");
-                    }
-
-                }
-                else if (eventType == XmlPullParser.END_TAG)
-                {
+                if (eventType == XmlPullParser.END_TAG) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }
