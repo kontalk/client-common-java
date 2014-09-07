@@ -20,7 +20,7 @@ package org.kontalk.client;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 
 
@@ -62,7 +62,7 @@ public class E2EEncryption implements PacketExtension {
     @Override
     public String toXML() {
         if (mEncoded == null)
-            mEncoded = Base64.encodeBytes(mData, Base64.DONT_BREAK_LINES);
+            mEncoded = Base64.encodeToString(mData);
 
         return new StringBuilder()
             .append('<')

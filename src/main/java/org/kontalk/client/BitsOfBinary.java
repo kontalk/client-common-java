@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 
 
@@ -85,7 +85,7 @@ public class BitsOfBinary implements PacketExtension {
                 int len;
                 while ((len = source.read(buffer)) != -1)
                     bos.write(buffer, 0, len);
-                mCache = Base64.encodeBytes(bos.toByteArray(), Base64.DONT_BREAK_LINES);
+                mCache = Base64.encodeToString(bos.toByteArray());
                 bos.close();
             }
             catch (IOException e) {

@@ -20,7 +20,7 @@ package org.kontalk.client;
 
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 
 
@@ -77,7 +77,7 @@ public class SubscribePublicKey implements PacketExtension {
     @Override
     public String toXML() {
         if (mEncodedKey == null)
-            mEncodedKey = Base64.encodeBytes(mKey, Base64.DONT_BREAK_LINES);
+            mEncodedKey = Base64.encodeToString(mKey);
 
         StringBuilder buf = new StringBuilder("<")
             .append(ELEMENT_NAME)

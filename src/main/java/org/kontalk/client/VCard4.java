@@ -20,7 +20,7 @@ package org.kontalk.client;
 
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.jivesoftware.smack.util.Base64;
+import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 
 
@@ -62,7 +62,7 @@ public class VCard4 extends IQ {
         if (mPGPKey != null) b
             .append("><key><uri>")
             .append(KEY_PREFIX)
-            .append(Base64.encodeBytes(mPGPKey, Base64.DONT_BREAK_LINES))
+            .append(Base64.encodeToString(mPGPKey))
             .append("</uri></key></")
             .append(ELEMENT_NAME)
             .append('>');
