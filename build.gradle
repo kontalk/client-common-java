@@ -4,9 +4,6 @@ buildscript {
     repositories {
         mavenCentral()
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
-    }
 }
 
 repositories {
@@ -14,9 +11,9 @@ repositories {
 }
 
 dependencies {
-    compile 'org.igniterealtime.smack:smack-core:4.1.0-alpha2'
-    compile 'org.igniterealtime.smack:smack-tcp:4.1.0-alpha2'
-    compile 'org.igniterealtime.smack:smack-extensions:4.1.0-alpha2'
+    compile 'org.igniterealtime.smack:smack-core:4.1.0-alpha3'
+    compile 'org.igniterealtime.smack:smack-tcp:4.1.0-alpha3'
+    compile 'org.igniterealtime.smack:smack-extensions:4.1.0-alpha3'
     compile ('net.sf.kxml:kxml2:2.3.0') {
         transitive = true
     }
