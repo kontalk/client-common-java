@@ -18,9 +18,11 @@
 
 package org.kontalk.client;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.IQProvider;
@@ -30,6 +32,7 @@ import org.jivesoftware.smackx.commands.AdHocCommand;
 import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
 import org.jivesoftware.smackx.commands.provider.AdHocCommandDataProvider;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -77,7 +80,7 @@ public class ServerlistCommand extends IQ {
     }
 
     /** Inspired by {@link AdHocCommandDataProvider}. */
-    public static class ResultProvider implements IQProvider {
+    public static class ResultProvider extends IQProvider<ServerlistCommandData> {
 
         /**
          * <iq from='kontalk.net' type='result' id='4H1Iu-205' to='alice@kontalk.net/8EL3UAOP'>
@@ -89,7 +92,7 @@ public class ServerlistCommand extends IQ {
          * </iq>
          */
         @Override
-        public IQ parseIQ(XmlPullParser parser) throws Exception {
+        public ServerlistCommandData parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             boolean done = false;
             ServerlistCommandData adHocCommandData = new ServerlistCommandData();
 

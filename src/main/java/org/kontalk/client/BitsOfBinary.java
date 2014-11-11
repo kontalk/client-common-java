@@ -23,10 +23,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -117,10 +119,10 @@ public class BitsOfBinary implements PacketExtension {
             .toString();
     }
 
-    public static final class Provider implements PacketExtensionProvider {
+    public static final class Provider extends PacketExtensionProvider<BitsOfBinary> {
 
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+        public BitsOfBinary parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             String contents = null, mime;
             boolean done = false;
 

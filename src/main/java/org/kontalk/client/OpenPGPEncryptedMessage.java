@@ -18,10 +18,14 @@
 
 package org.kontalk.client;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 /**
@@ -69,10 +73,10 @@ public class OpenPGPEncryptedMessage implements PacketExtension {
             .toString();
     }
 
-    public static final class Provider implements PacketExtensionProvider {
+    public static final class Provider extends PacketExtensionProvider<OpenPGPEncryptedMessage> {
 
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+        public OpenPGPEncryptedMessage parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             String contents = null;
             boolean done = false;
 

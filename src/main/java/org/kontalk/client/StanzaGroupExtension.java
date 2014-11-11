@@ -74,7 +74,7 @@ public class StanzaGroupExtension implements PacketExtension {
         this.count = count;
     }
 
-    public static class Provider extends EmbeddedExtensionProvider {
+    public static class Provider extends EmbeddedExtensionProvider<StanzaGroupExtension> {
 
         /*
         @Override
@@ -110,7 +110,7 @@ public class StanzaGroupExtension implements PacketExtension {
         */
 
         @Override
-        protected PacketExtension createReturnExtension(String currentElement, String currentNamespace,
+        protected StanzaGroupExtension createReturnExtension(String currentElement, String currentNamespace,
             Map<String, String> attributeMap, List<? extends PacketExtension> content) {
             int count;
             try {

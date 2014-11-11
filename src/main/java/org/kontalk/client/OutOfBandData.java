@@ -18,9 +18,13 @@
 
 package org.kontalk.client;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 /**
@@ -100,10 +104,10 @@ public class OutOfBandData implements PacketExtension {
         return xml.toString();
     }
 
-    public static final class Provider implements PacketExtensionProvider {
+    public static final class Provider extends PacketExtensionProvider<OutOfBandData> {
 
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+        public OutOfBandData parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             String url = null, mime = null;
             long length = -1;
             boolean encrypted = false;

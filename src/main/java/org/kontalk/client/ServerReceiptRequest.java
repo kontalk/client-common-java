@@ -60,9 +60,9 @@ public class ServerReceiptRequest implements PacketExtension {
         return XML;
     }
 
-    public static final class Provider extends EmbeddedExtensionProvider {
+    public static final class Provider extends EmbeddedExtensionProvider<ServerReceiptRequest> {
         @Override
-        protected PacketExtension createReturnExtension(String currentElement, String currentNamespace,
+        protected ServerReceiptRequest createReturnExtension(String currentElement, String currentNamespace,
             Map<String, String> attributeMap, List<? extends PacketExtension> content) {
             return new ServerReceiptRequest(attributeMap.get("id"));
         }

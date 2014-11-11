@@ -18,10 +18,14 @@
 
 package org.kontalk.client;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 /**
@@ -72,10 +76,10 @@ public class VCard4 extends IQ {
         return b.toString();
     }
 
-    public static final class Provider implements IQProvider {
+    public static final class Provider extends IQProvider<VCard4> {
 
         @Override
-        public IQ parseIQ(XmlPullParser parser) throws Exception {
+        public VCard4 parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             boolean done = false, in_key = false, in_uri = false;
             String uri = null;
 

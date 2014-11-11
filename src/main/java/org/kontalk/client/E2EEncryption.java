@@ -18,10 +18,14 @@
 
 package org.kontalk.client;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 /**
@@ -77,10 +81,10 @@ public class E2EEncryption implements PacketExtension {
             .toString();
     }
 
-    public static class Provider implements PacketExtensionProvider {
+    public static class Provider extends PacketExtensionProvider<E2EEncryption> {
 
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser) throws Exception {
+        public E2EEncryption parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             boolean done = false;
             String data = null;
 

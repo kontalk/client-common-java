@@ -18,12 +18,15 @@
 
 package org.kontalk.client;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -121,10 +124,10 @@ public class BlockingCommand extends IQ {
         return sBlocklist;
     }
 
-    public static final class Provider implements IQProvider {
+    public static final class Provider extends IQProvider<BlockingCommand> {
 
         @Override
-        public IQ parseIQ(XmlPullParser parser) throws Exception {
+        public BlockingCommand parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             List<String> jidList = null;
             boolean done = false;
 

@@ -21,6 +21,9 @@ package org.kontalk.client;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 
 
 /**
@@ -73,10 +76,10 @@ public class UploadInfo extends IQ {
         return xml.toString();
     }
 
-    public static final class Provider implements IQProvider {
+    public static final class Provider extends IQProvider<UploadInfo> {
 
         @Override
-        public IQ parseIQ(XmlPullParser parser) throws Exception {
+        public UploadInfo parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException {
             boolean done = false, in_uri = false;
             int depth = parser.getDepth();
             String node, mime = null, uri = null;

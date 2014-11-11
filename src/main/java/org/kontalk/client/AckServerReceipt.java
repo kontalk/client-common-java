@@ -37,9 +37,9 @@ public class AckServerReceipt extends ServerReceipt {
         return ELEMENT_NAME;
     }
 
-    public static final class Provider extends EmbeddedExtensionProvider {
+    public static final class Provider extends EmbeddedExtensionProvider<AckServerReceipt> {
         @Override
-        protected PacketExtension createReturnExtension(String currentElement, String currentNamespace,
+        protected AckServerReceipt createReturnExtension(String currentElement, String currentNamespace,
             Map<String, String> attributeMap, List<? extends PacketExtension> content) {
             return new AckServerReceipt(attributeMap.get("id"));
         }
