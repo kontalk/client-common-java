@@ -47,10 +47,12 @@ public class RosterMatch extends IQ {
         if (mItems != null && mItems.size() > 0) {
             builder.rightAngleBracket();
             for (String item : mItems) {
-                builder.openElement("item")
-                    .append(item)
-                    .closeElement("item");
+                builder.halfOpenElement("item")
+                    .attribute("jid", item)
+                    .closeEmptyElement();
             }
+
+            builder.closeElement(ELEMENT_NAME);
         }
         else {
             builder.closeEmptyElement();
