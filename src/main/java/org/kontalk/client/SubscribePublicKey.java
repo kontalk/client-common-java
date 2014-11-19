@@ -30,8 +30,8 @@ import java.io.IOException;
 
 /** Packet extension for presence subscription requests with public key. */
 public class SubscribePublicKey implements PacketExtension {
-    public static final String ELEMENT_NAME = "pubkey";
-    public static final String NAMESPACE = "urn:xmpp:pubkey:2";
+    public static final String ELEMENT_NAME = PublicKeyPublish.ELEMENT_NAME;
+    public static final String NAMESPACE = PublicKeyPublish.NAMESPACE;
 
     /** Public key data. */
     private final byte[] mKey;
