@@ -82,7 +82,7 @@ public class RosterMatch extends IQ {
 
         @Override
         public RosterMatch parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
-            boolean done = false, in_item = false;
+            boolean done = false;
             List<String> items = null;
 
             while (!done) {
@@ -90,24 +90,17 @@ public class RosterMatch extends IQ {
 
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
-                        in_item = true;
-                    }
-                }
-                else if (eventType == XmlPullParser.TEXT) {
-                    if (in_item) {
                         if (items == null)
                             items = new LinkedList<String>();
-                        items.add(parser.getText());
+                        String item = parser.getAttributeValue(null, "jid");
+                        if (item != null)
+                            items.add(item);
                     }
                 }
                 else if (eventType == XmlPullParser.END_TAG) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }
-                    else if ("item".equals(parser.getName())) {
-                        in_item = false;
-                    }
-
                 }
             }
 
