@@ -17,9 +17,15 @@
  */
 package org.kontalk.client;
 
+import java.io.IOException;
+
+import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -69,6 +75,39 @@ public class PublicKeyPublish extends IQ {
         }
     }
 
-    // TODO IQProvider
+    public static final class Provider extends IQProvider<PublicKeyPublish> {
+
+        @Override
+        public PublicKeyPublish parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+            boolean done = false, in_key = false;
+            String key = null;
+
+            while (!done) {
+                int eventType = parser.next();
+
+                if (eventType == XmlPullParser.START_TAG) {
+                    if (ELEMENT_NAME.equals(parser.getName())) {
+                        in_key = true;
+                    }
+                }
+                else if (eventType == XmlPullParser.TEXT) {
+                    if (in_key) {
+                        key = parser.getText();
+                    }
+                }
+                else if (eventType == XmlPullParser.END_TAG) {
+                    if (ELEMENT_NAME.equals(parser.getName())) {
+                        done = true;
+                    }
+                }
+            }
+
+            if (key != null)
+                return new PublicKeyPublish(IQ.Type.result, Base64.decode(key));
+            else
+                return null;
+        }
+
+    }
 
 }
