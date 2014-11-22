@@ -73,9 +73,9 @@ public class E2EEncryption implements PacketExtension {
             .append(ELEMENT_NAME)
             .append(" xmlns='")
             .append(NAMESPACE)
-            .append("'><![CDATA[")
+            .append('>')
             .append(mEncoded)
-            .append("]]></")
+            .append("</")
             .append(ELEMENT_NAME)
             .append('>')
             .toString();
