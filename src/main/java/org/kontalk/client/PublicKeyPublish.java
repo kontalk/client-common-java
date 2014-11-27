@@ -79,21 +79,14 @@ public class PublicKeyPublish extends IQ {
 
         @Override
         public PublicKeyPublish parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
-            boolean done = false, in_key = false;
+            boolean done = false;
             String key = null;
 
             while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
-                    if (ELEMENT_NAME.equals(parser.getName())) {
-                        in_key = true;
-                    }
-                }
-                else if (eventType == XmlPullParser.TEXT) {
-                    if (in_key) {
-                        key = parser.getText();
-                    }
+                if (eventType == XmlPullParser.TEXT) {
+                    key = parser.getText();
                 }
                 else if (eventType == XmlPullParser.END_TAG) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
