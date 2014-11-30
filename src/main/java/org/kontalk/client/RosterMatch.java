@@ -39,9 +39,11 @@ public class RosterMatch extends IQ {
     private List<String> mItems;
 
     public RosterMatch() {
+        super(ELEMENT_NAME, NAMESPACE);
     }
 
     private RosterMatch(List<String> items) {
+        this();
         mItems = items;
     }
 
@@ -56,26 +58,20 @@ public class RosterMatch extends IQ {
     }
 
     @Override
-    public CharSequence getChildElementXML() {
-        XmlStringBuilder builder = new XmlStringBuilder()
-            .halfOpenElement(ELEMENT_NAME)
-            .xmlnsAttribute(NAMESPACE);
-
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
         if (mItems != null && mItems.size() > 0) {
-            builder.rightAngleBracket();
+            xml.rightAngleBracket();
             for (String item : mItems) {
-                builder.halfOpenElement("item")
+                xml.halfOpenElement("item")
                     .attribute("jid", item)
                     .closeEmptyElement();
             }
-
-            builder.closeElement(ELEMENT_NAME);
         }
         else {
-            builder.closeEmptyElement();
+            xml.setEmptyElement();
         }
 
-        return builder;
+        return xml;
     }
 
     public static final class Provider extends IQProvider<RosterMatch> {

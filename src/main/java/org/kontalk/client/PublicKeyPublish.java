@@ -37,17 +37,17 @@ public class PublicKeyPublish extends IQ {
     public static final String NAMESPACE = "urn:xmpp:pubkey:2";
     public static final String ELEMENT_NAME = "pubkey";
 
-    private static XmlStringBuilder sChildElement;
-
     private byte[] mPublicKey;
 
     private PublicKeyPublish(IQ.Type type, byte[] publicKey) {
+        super(ELEMENT_NAME, NAMESPACE);
         setType(type);
         mPublicKey = publicKey;
     }
 
     public PublicKeyPublish() {
         // default IQ with type get
+        this(IQ.Type.get, null);
     }
 
     public byte[] getPublicKey() {
@@ -55,24 +55,16 @@ public class PublicKeyPublish extends IQ {
     }
 
     @Override
-    public CharSequence getChildElementXML() {
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
         if (mPublicKey != null) {
-            return new XmlStringBuilder()
-                .halfOpenElement(ELEMENT_NAME)
-                .xmlnsAttribute(NAMESPACE)
-                .rightAngleBracket()
-                .append(Base64.encodeToString(mPublicKey))
-                .closeElement(ELEMENT_NAME);
+            xml.rightAngleBracket()
+                .append(Base64.encodeToString(mPublicKey));
         }
         else {
-            if (sChildElement == null) {
-                sChildElement = new XmlStringBuilder()
-                    .halfOpenElement(ELEMENT_NAME)
-                    .xmlnsAttribute(NAMESPACE)
-                    .closeEmptyElement();
-            }
-            return sChildElement;
+            xml.setEmptyElement();
         }
+
+        return xml;
     }
 
     public static final class Provider extends IQProvider<PublicKeyPublish> {

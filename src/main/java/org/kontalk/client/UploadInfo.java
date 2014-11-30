@@ -47,6 +47,7 @@ public class UploadInfo extends IQ {
     }
 
     public UploadInfo(String node, String mime, String uri) {
+        super(ELEMENT_NAME, NAMESPACE);
         mNode = node;
         mMime = mime;
         mUri = uri;
@@ -65,15 +66,19 @@ public class UploadInfo extends IQ {
     }
 
     @Override
-    public String getChildElementXML() {
-        StringBuilder xml = new StringBuilder();
-        xml.append(String.format("<%s xmlns='%s' node='%s'", ELEMENT_NAME, NAMESPACE, mNode));
-        if (mMime != null)
-            xml.append(String.format("><media type='%s'/></%s>", mMime, ELEMENT_NAME));
-        else
-            xml.append("/>");
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
+        xml.attribute("node", mNode);
+        if (mMime != null) {
+            xml.rightAngleBracket()
+                .halfOpenElement("media")
+                .attribute("type", mMime)
+                .closeEmptyElement();
+        }
+        else {
+            xml.setEmptyElement();
+        }
 
-        return xml.toString();
+        return xml;
     }
 
     public static final class Provider extends IQProvider<UploadInfo> {

@@ -45,12 +45,11 @@ public class BlockingCommand extends IQ {
     // might be used often, better keeping a cache of it
     private static BlockingCommand sBlocklist;
 
-    private final String mCommand;
     private List<String> mJidList;
 
     public BlockingCommand(String command) {
+        super(command, NAMESPACE);
         setType(IQ.Type.set);
-        mCommand = command;
     }
 
     public BlockingCommand(String command, String jid) {
@@ -76,31 +75,20 @@ public class BlockingCommand extends IQ {
     }
 
     @Override
-    public String getChildElementXML() {
-        StringBuilder b = new StringBuilder()
-            .append('<')
-            .append(mCommand)
-            .append(" xmlns='")
-            .append(NAMESPACE)
-            .append("'");
-
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
         if (mJidList != null && mJidList.size() > 0) {
-            b.append('>');
+            xml.rightAngleBracket();
             for (String jid: mJidList) {
-                b.append("<item jid='")
-                    .append(jid)
-                    .append("'/>");
+                xml.halfOpenElement("item")
+                    .attribute("jid", jid)
+                    .closeEmptyElement();
             }
-
-            b.append("</")
-                .append(mCommand)
-                .append('>');
         }
         else {
-            b.append("/>");
+            xml.setEmptyElement();
         }
 
-        return b.toString();
+        return xml;
     }
 
     public static BlockingCommand block(String jid) {
