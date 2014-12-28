@@ -43,7 +43,7 @@ public class VCard4 extends IQ {
     private byte[] mPGPKey;
 
     public VCard4() {
-        super();
+        super(ELEMENT_NAME, NAMESPACE);
     }
 
     public void setPGPKey(byte[] keydata) {
@@ -55,25 +55,21 @@ public class VCard4 extends IQ {
     }
 
     @Override
-    public String getChildElementXML() {
-        StringBuilder b = new StringBuilder()
-        	.append('<')
-            .append(ELEMENT_NAME)
-            .append(" xmlns='")
-            .append(NAMESPACE)
-            .append('\'');
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
+        if (mPGPKey != null) {
+            xml.rightAngleBracket()
+                .openElement("key")
+                .openElement("uri")
+                .append(KEY_PREFIX)
+                .append(Base64.encodeToString(mPGPKey))
+                .closeElement("uri")
+                .closeElement("key");
+        }
+        else {
+            xml.setEmptyElement();
+        }
 
-        if (mPGPKey != null) b
-            .append("><key><uri>")
-            .append(KEY_PREFIX)
-            .append(Base64.encodeToString(mPGPKey))
-            .append("</uri></key></")
-            .append(ELEMENT_NAME)
-            .append('>');
-        else b
-            .append("/>");
-
-        return b.toString();
+        return xml;
     }
 
     public static final class Provider extends IQProvider<VCard4> {

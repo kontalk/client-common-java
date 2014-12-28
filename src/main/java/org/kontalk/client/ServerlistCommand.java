@@ -46,18 +46,17 @@ public class ServerlistCommand extends IQ {
     private static final String COMMAND_NAME = "serverlist";
 
     public ServerlistCommand() {
-        super();
+        super(ELEMENT_NAME, NAMESPACE);
         setType(Type.set);
     }
 
     @Override
-    public CharSequence getChildElementXML() {
-        return new XmlStringBuilder()
-            .halfOpenElement(ELEMENT_NAME)
-            .attribute("xmlns", NAMESPACE)
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
+        xml.attribute("xmlns", NAMESPACE)
             .attribute("node", COMMAND_NAME)
-            .attribute("action", "execute")
-            .closeEmptyElement();
+            .attribute("action", "execute");
+        xml.setEmptyElement();
+        return xml;
     }
 
     public static class ServerlistCommandData extends AdHocCommandData {

@@ -18,35 +18,31 @@
 
 package org.kontalk.client;
 
-import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.packet.IQ;
 
 
-/** Capability extension for registering to push notifications. */
-public class PushRegistration implements PacketExtension {
+/** Extension for registering to push notifications. */
+public class PushRegistration extends IQ {
     public static final String NAMESPACE = "http://kontalk.org/extensions/presence#push";
-    public static final String ELEMENT_NAME = "c";
+    public static final String ELEMENT_NAME = "register";
 
+    private final String mProvider;
     private final String mRegId;
 
-    public PushRegistration(String regId) {
+    public PushRegistration(String provider, String regId) {
+        super(ELEMENT_NAME, NAMESPACE);
+        setType(Type.set);
+        mProvider = provider;
         mRegId = regId;
     }
 
-    private static final String XML = "<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "' provider='gcm'>%s</" + ELEMENT_NAME + ">";
-
     @Override
-    public String getElementName() {
-        return ELEMENT_NAME;
-    }
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
+        xml.attribute("provider", mProvider)
+            .rightAngleBracket()
+            .append(mRegId);
 
-    @Override
-    public String getNamespace() {
-        return NAMESPACE;
-    }
-
-    @Override
-    public String toXML() {
-        return String.format(XML, mRegId);
+        return xml;
     }
 
 }
