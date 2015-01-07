@@ -18,4 +18,5 @@ dependencies {
         transitive = true
     }
     testCompile 'junit:junit:4.+'
+    testCompile 'org.igniterealtime.smack:smack-java7:4.1.0-alpha6'
 }

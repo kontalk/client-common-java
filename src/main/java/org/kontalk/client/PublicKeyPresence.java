@@ -21,6 +21,7 @@ package org.kontalk.client;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -28,8 +29,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 
-/** Packet extension for presence subscription requests with public key. */
-public class SubscribePublicKey implements PacketExtension {
+/** Packet extension for presence stanzas with public key. */
+public class PublicKeyPresence implements PacketExtension {
     public static final String ELEMENT_NAME = PublicKeyPublish.ELEMENT_NAME;
     public static final String NAMESPACE = PublicKeyPublish.NAMESPACE;
 
@@ -41,21 +42,21 @@ public class SubscribePublicKey implements PacketExtension {
     /** Base64-encoded public key (cached). */
     private String mEncodedKey;
 
-    public SubscribePublicKey(String keydata) {
-        this(Base64.decode(keydata), null);
+    public PublicKeyPresence(String keydata) {
+        this(keydata != null ? Base64.decode(keydata) : null, null);
         mEncodedKey = keydata;
     }
 
-    public SubscribePublicKey(byte[] keydata) {
+    public PublicKeyPresence(byte[] keydata) {
         this(keydata, null);
     }
 
-    public SubscribePublicKey(String keydata, String fingerprint) {
-        this(Base64.decode(keydata), fingerprint);
+    public PublicKeyPresence(String keydata, String fingerprint) {
+        this(keydata != null ? Base64.decode(keydata) : null, fingerprint);
         mEncodedKey = keydata;
     }
 
-    public SubscribePublicKey(byte[] keydata, String fingerprint) {
+    public PublicKeyPresence(byte[] keydata, String fingerprint) {
         mKey = keydata;
         mFingerprint = fingerprint;
     }
@@ -80,33 +81,34 @@ public class SubscribePublicKey implements PacketExtension {
 
     @Override
     public String toXML() {
-        if (mEncodedKey == null)
+        if (mEncodedKey == null && mKey != null)
             mEncodedKey = Base64.encodeToString(mKey);
 
-        StringBuilder buf = new StringBuilder("<")
-            .append(ELEMENT_NAME)
-            .append(" xmlns=\"")
-            .append(NAMESPACE)
-            .append("\"><key>")
-            .append(mEncodedKey)
-            .append("</key>");
+        XmlStringBuilder buf = new XmlStringBuilder()
+            .halfOpenElement(ELEMENT_NAME)
+            .xmlnsAttribute(NAMESPACE)
+            .rightAngleBracket();
 
-        if (mFingerprint != null)
-            buf.append("<print>")
+        if (mEncodedKey != null) {
+            buf.openElement("key")
+                .append(mEncodedKey)
+                .closeElement("key");
+        }
+
+        if (mFingerprint != null) {
+            buf.openElement("print")
                 .append(mFingerprint)
-                .append("</print>");
+                .closeElement("print");
+        }
 
-        buf.append("</")
-            .append(ELEMENT_NAME)
-            .append('>');
-
-        return buf.toString();
+        return buf.closeElement(ELEMENT_NAME)
+            .toString();
     }
 
-    public static class Provider extends PacketExtensionProvider<SubscribePublicKey> {
+    public static class Provider extends PacketExtensionProvider<PublicKeyPresence> {
 
         @Override
-        public SubscribePublicKey parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public PublicKeyPresence parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             String key = null, print = null;
             boolean in_key = false, in_print = false, done = false;
 
@@ -137,11 +139,7 @@ public class SubscribePublicKey implements PacketExtension {
                 }
             }
 
-            if (key != null && print != null)
-                return new SubscribePublicKey(key, print);
-            else
-                return null;
-
+            return new PublicKeyPresence(key, print);
         }
     }
 
