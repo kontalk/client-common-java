@@ -65,6 +65,10 @@ public class BitsOfBinary implements PacketExtension {
         return NAMESPACE;
     }
 
+    /**
+     * Returns the decoded contents.
+     * @return the Base64-decoded contents.
+     */
     public byte[] getContents() {
         updateContents();
         if (mCache != null)
@@ -73,6 +77,10 @@ public class BitsOfBinary implements PacketExtension {
         return null;
     }
 
+    /**
+     * Returns the MIME type (if defined).
+     * @return the MIME type (if any).
+     */
     public String getType() {
         return mMime;
     }
@@ -100,6 +108,10 @@ public class BitsOfBinary implements PacketExtension {
         }
     }
 
+    /**
+     * Returns an XML representation of this object as per XEP-0231.
+     * @return the XML representation.
+     */
     @Override
     public String toXML() {
         updateContents();
@@ -119,6 +131,7 @@ public class BitsOfBinary implements PacketExtension {
             .toString();
     }
 
+    /** Provider class for parsing {@link BitsOfBinary}. */
     public static final class Provider extends PacketExtensionProvider<BitsOfBinary> {
 
         @Override

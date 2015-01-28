@@ -28,7 +28,15 @@ import org.jxmpp.util.XmppDateTime;
 
 
 /**
- * Generates a Message/CPIM body.
+ * <p>Message/CPIM generator and parser.</p>
+ * <p>
+ * To create a Message/CPIM message body, first construct a new object with the
+ * necessary data, then use {@link #toString()} to retrieve the generated
+ * Message/CPIM body. Note that all constructor fields are mandatory.<br>
+ * </p>
+ * <p>
+ * You can use {@link #parse(String)} for a very basic Message/CPIM parser.
+ * </p>
  * @author Daniele Ricci
  */
 public class CPIMMessage {
