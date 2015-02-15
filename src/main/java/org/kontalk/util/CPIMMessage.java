@@ -168,8 +168,16 @@ public class CPIMMessage {
         // fourth pass: message content
         contents = p.getData();
 
-        Date parsedDate = XmppDateTime.DateFormatType
-            .XEP_0082_DATETIME_PROFILE.parse(date);
+        Date parsedDate = null;
+        try {
+            if (date != null) {
+                parsedDate = XmppDateTime.DateFormatType
+                    .XEP_0082_DATETIME_PROFILE.parse(date);
+            }
+        }
+        catch (ParseException ignored) {
+        }
+
         return new CPIMMessage(from, to, parsedDate, type, contents);
     }
 
