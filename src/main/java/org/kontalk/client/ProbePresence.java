@@ -18,11 +18,11 @@
 
 package org.kontalk.client;
 
-import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
 
 
 /** A presence stanza with type "probe". */
-public class ProbePresence extends Packet {
+public class ProbePresence extends Stanza {
     private static final String XML = "<presence id=\"%s\" type=\"probe\" to=\"%s\"/>";
 
     private CharSequence to;
@@ -37,7 +37,7 @@ public class ProbePresence extends Packet {
     public String toXML() {
         // cache XML for future use
         if (_xml == null)
-            _xml = String.format(XML, getPacketID(), to);
+            _xml = String.format(XML, getStanzaId(), to);
         return _xml;
     }
 

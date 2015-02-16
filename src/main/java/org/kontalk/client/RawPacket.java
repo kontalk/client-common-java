@@ -18,11 +18,11 @@
 
 package org.kontalk.client;
 
-import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.Stanza;
 
 
 /** A wrapper to a predefined XML string. */
-public final class RawPacket extends Packet {
+public final class RawPacket extends Stanza {
     private final String _xml;
 
     public RawPacket(String xml) {

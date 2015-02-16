@@ -11,12 +11,12 @@ repositories {
 }
 
 dependencies {
-    compile 'org.igniterealtime.smack:smack-core:4.1.0-alpha6'
-    compile 'org.igniterealtime.smack:smack-tcp:4.1.0-alpha6'
-    compile 'org.igniterealtime.smack:smack-extensions:4.1.0-alpha6'
+    compile 'org.igniterealtime.smack:smack-core:4.1.0-rc1'
+    compile 'org.igniterealtime.smack:smack-tcp:4.1.0-rc1'
+    compile 'org.igniterealtime.smack:smack-extensions:4.1.0-rc1'
     compile ('net.sf.kxml:kxml2:2.3.0') {
         transitive = true
     }
     testCompile 'junit:junit:4.+'
-    testCompile 'org.igniterealtime.smack:smack-java7:4.1.0-alpha6'
+    testCompile 'org.igniterealtime.smack:smack-java7:4.1.0-rc1'
 }
