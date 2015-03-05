@@ -10,13 +10,17 @@ repositories {
     mavenCentral()
 }
 
+ext {
+    smackVersion = '4.1.0-rc2'
+}
+
 dependencies {
-    compile 'org.igniterealtime.smack:smack-core:4.1.0-rc2'
-    compile 'org.igniterealtime.smack:smack-tcp:4.1.0-rc2'
-    compile 'org.igniterealtime.smack:smack-extensions:4.1.0-rc2'
+    compile "org.igniterealtime.smack:smack-core:$smackVersion"
+    compile "org.igniterealtime.smack:smack-tcp:$smackVersion"
+    compile "org.igniterealtime.smack:smack-extensions:$smackVersion"
     compile ('net.sf.kxml:kxml2:2.3.0') {
         transitive = true
     }
     testCompile 'junit:junit:4.+'
-    testCompile 'org.igniterealtime.smack:smack-java7:4.1.0-rc2'
+    testCompile "org.igniterealtime.smack:smack-java7:$smackVersion"
 }
