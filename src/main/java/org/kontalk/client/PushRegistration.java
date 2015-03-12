@@ -24,13 +24,14 @@ import org.jivesoftware.smack.packet.IQ;
 /** Extension for registering to push notifications. */
 public class PushRegistration extends IQ {
     public static final String NAMESPACE = "http://kontalk.org/extensions/presence#push";
-    public static final String ELEMENT_NAME = "register";
+    private static final String REGISTER = "register";
+    private static final String UNREGISTER = "unregister";
 
     private final String mProvider;
     private final String mRegId;
 
-    public PushRegistration(String provider, String regId) {
-        super(ELEMENT_NAME, NAMESPACE);
+    private PushRegistration(String element, String provider, String regId) {
+        super(element, NAMESPACE);
         setType(Type.set);
         mProvider = provider;
         mRegId = regId;
@@ -38,11 +39,25 @@ public class PushRegistration extends IQ {
 
     @Override
     protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder xml) {
-        xml.attribute("provider", mProvider)
-            .rightAngleBracket()
-            .append(mRegId);
+        xml.attribute("provider", mProvider);
+
+        if (mRegId != null) {
+            xml.rightAngleBracket()
+                .append(mRegId);
+        }
+        else {
+            xml.setEmptyElement();
+        }
 
         return xml;
+    }
+
+    public static PushRegistration register(String provider, String regId) {
+        return new PushRegistration(REGISTER, provider, regId);
+    }
+
+    public static PushRegistration unregister(String provider) {
+        return new PushRegistration(UNREGISTER, provider, null);
     }
 
 }
