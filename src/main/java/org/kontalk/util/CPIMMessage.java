@@ -21,6 +21,7 @@ package org.kontalk.util;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.util.Date;
 
@@ -110,8 +111,8 @@ public class CPIMMessage {
         return mBuf.toString();
     }
 
-    public byte[] toByteArray() {
-        return toString().getBytes();
+    public byte[] toByteArray() throws UnsupportedEncodingException {
+        return toString().getBytes("UTF-8");
     }
 
     /** A very bad CPIM parser. */
