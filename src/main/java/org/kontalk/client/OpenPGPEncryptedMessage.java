@@ -19,8 +19,8 @@
 package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,7 +33,7 @@ import java.io.IOException;
  * http://xmpp.org/extensions/xep-0027.html#encrypting
  * @author Daniele Ricci
  */
-public class OpenPGPEncryptedMessage implements PacketExtension {
+public class OpenPGPEncryptedMessage implements ExtensionElement {
 
     public static final String ELEMENT_NAME = "x";
     public static final String NAMESPACE = "jabber:x:encrypted";
@@ -73,7 +73,7 @@ public class OpenPGPEncryptedMessage implements PacketExtension {
             .toString();
     }
 
-    public static final class Provider extends PacketExtensionProvider<OpenPGPEncryptedMessage> {
+    public static final class Provider extends ExtensionElementProvider<OpenPGPEncryptedMessage> {
 
         @Override
         public OpenPGPEncryptedMessage parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {

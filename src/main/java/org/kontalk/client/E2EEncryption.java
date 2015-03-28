@@ -19,8 +19,8 @@
 package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,7 +33,7 @@ import java.io.IOException;
  * http://tools.ietf.org/html/rfc3923
  * @author Daniele Ricci
  */
-public class E2EEncryption implements PacketExtension {
+public class E2EEncryption implements ExtensionElement {
     public static final String ELEMENT_NAME = "e2e";
     public static final String NAMESPACE = "urn:ietf:params:xml:ns:xmpp-e2e";
 
@@ -81,7 +81,7 @@ public class E2EEncryption implements PacketExtension {
             .toString();
     }
 
-    public static class Provider extends PacketExtensionProvider<E2EEncryption> {
+    public static class Provider extends ExtensionElementProvider<E2EEncryption> {
 
         @Override
         public E2EEncryption parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {

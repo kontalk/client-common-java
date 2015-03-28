@@ -19,8 +19,8 @@
 package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
@@ -30,7 +30,7 @@ import java.io.IOException;
 
 
 /** Packet extension for presence stanzas with public key. */
-public class PublicKeyPresence implements PacketExtension {
+public class PublicKeyPresence implements ExtensionElement {
     public static final String ELEMENT_NAME = PublicKeyPublish.ELEMENT_NAME;
     public static final String NAMESPACE = PublicKeyPublish.NAMESPACE;
 
@@ -105,7 +105,7 @@ public class PublicKeyPresence implements PacketExtension {
             .toString();
     }
 
-    public static class Provider extends PacketExtensionProvider<PublicKeyPresence> {
+    public static class Provider extends ExtensionElementProvider<PublicKeyPresence> {
 
         @Override
         public PublicKeyPresence parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {

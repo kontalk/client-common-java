@@ -24,8 +24,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,7 +35,7 @@ import org.xmlpull.v1.XmlPullParserException;
  * XEP-0231: Bits of Binary
  * @author Daniele Ricci
  */
-public class BitsOfBinary implements PacketExtension {
+public class BitsOfBinary implements ExtensionElement {
     public static final String ELEMENT_NAME = "data";
     public static final String NAMESPACE = "urn:xmpp:bob";
 
@@ -132,7 +132,7 @@ public class BitsOfBinary implements PacketExtension {
     }
 
     /** Provider class for parsing {@link BitsOfBinary}. */
-    public static final class Provider extends PacketExtensionProvider<BitsOfBinary> {
+    public static final class Provider extends ExtensionElementProvider<BitsOfBinary> {
 
         @Override
         public BitsOfBinary parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {

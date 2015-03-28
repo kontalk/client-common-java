@@ -19,8 +19,8 @@
 package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
-import org.jivesoftware.smack.packet.PacketExtension;
-import org.jivesoftware.smack.provider.PacketExtensionProvider;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -31,7 +31,7 @@ import java.io.IOException;
  * XEP-0066: Out of Band Data
  * http://xmpp.org/extensions/xep-0066.html
  */
-public class OutOfBandData implements PacketExtension {
+public class OutOfBandData implements ExtensionElement {
 
     public static final String NAMESPACE = "jabber:x:oob";
     public static final String ELEMENT_NAME = "x";
@@ -104,7 +104,7 @@ public class OutOfBandData implements PacketExtension {
         return xml.toString();
     }
 
-    public static final class Provider extends PacketExtensionProvider<OutOfBandData> {
+    public static final class Provider extends ExtensionElementProvider<OutOfBandData> {
 
         @Override
         public OutOfBandData parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
