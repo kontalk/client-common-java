@@ -1,17 +1,35 @@
+/*
+ * Kontalk client common library
+ * Copyright (C) 2015 Kontalk Devteam <devteam@kontalk.org>
+
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.kontalk.util;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-import static junit.framework.Assert.*;
+import static org.junit.Assert.*;
 
 
 /**
  * Test case for {@link CPIMMessage}.
  * @author Daniele Ricci
  */
-public class CPIMMessageTest extends TestCase {
+public class CPIMMessageTest {
 
     private static final String FROM = "alice@example.com";
     private static final String TO = "bob@example.com";
@@ -30,6 +48,7 @@ public class CPIMMessageTest extends TestCase {
         "\n" +
         "TEST BODY";
 
+    @Test
     public void testToString() throws Exception {
         CPIMMessage m = new CPIMMessage(
             FROM,
@@ -41,6 +60,7 @@ public class CPIMMessageTest extends TestCase {
         assertEquals("generated CPIM data not matching.", OUTPUT, m.toString());
     }
 
+    @Test
     public void testParse() throws Exception {
         CPIMMessage m = CPIMMessage.parse(OUTPUT);
         assertEquals("From attribute not matching.", FROM, m.getFrom());

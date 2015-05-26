@@ -64,11 +64,11 @@ public class BlockingCommand extends IQ {
         mJidList = jidList;
     }
 
-	/* TODO
-	public BlockingCommand(IQ iq) {
-		super(iq);
-	}
-	*/
+    /* TODO
+    public BlockingCommand(IQ iq) {
+        super(iq);
+    }
+    */
 
     public List<String> getItems() {
         return mJidList;

@@ -1,4 +1,7 @@
 apply plugin: 'java'
+apply plugin: 'checkstyle'
+
+check.dependsOn 'checkstyle'
 
 buildscript {
     repositories {
@@ -12,6 +15,14 @@ repositories {
 
 ext {
     smackVersion = '4.1.1'
+}
+
+task checkstyle(type: Checkstyle){
+    source 'src'
+    include '**/*.java'
+    def configProps = ['project.moduleDir': projectDir.absolutePath]
+    configProperties configProps
+    classpath = files()
 }
 
 dependencies {
