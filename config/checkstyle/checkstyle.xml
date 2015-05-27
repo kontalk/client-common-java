@@ -3,7 +3,7 @@
     "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
 <module name="Checker">
   <module name="Header">
-    <property name="headerFile" value="${project.moduleDir}/config/header.txt"/>
+    <property name="headerFile" value="${baseDir}/config/header.txt"/>
     <property name="ignoreLines" value="3"/>
     <property name="fileExtensions" value="java"/>
   </module>

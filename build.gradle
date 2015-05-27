@@ -20,7 +20,7 @@ ext {
 task checkstyle(type: Checkstyle){
     source 'src'
     include '**/*.java'
-    def configProps = ['project.moduleDir': projectDir.absolutePath]
+    def configProps = ['baseDir': projectDir.absolutePath]
     configProperties configProps
     classpath = files()
 }
