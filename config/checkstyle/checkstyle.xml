@@ -16,6 +16,7 @@
     <module name="EmptyLineSeparator">
       <property name="allowNoEmptyLineBetweenFields" value="true"/>
     </module>
+    <module name="UnusedImports"/>
     <module name="AvoidStarImport">
       <property name="allowStaticMemberImports" value="true"/>
     </module>
