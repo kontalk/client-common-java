@@ -1,8 +1,6 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 
-check.dependsOn 'checkstyle'
-
 buildscript {
     repositories {
         mavenCentral()
@@ -17,12 +15,8 @@ ext {
     smackVersion = '4.1.1'
 }
 
-task checkstyle(type: Checkstyle){
-    source 'src'
-    include '**/*.java'
-    def configProps = ['baseDir': projectDir.absolutePath]
-    configProperties configProps
-    classpath = files()
+checkstyle {
+    configProperties.baseDir = projectDir.absolutePath
 }
 
 dependencies {
