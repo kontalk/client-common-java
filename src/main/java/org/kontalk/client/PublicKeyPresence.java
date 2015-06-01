@@ -20,6 +20,7 @@ package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
@@ -103,6 +104,18 @@ public class PublicKeyPresence implements ExtensionElement {
 
         return buf.closeElement(ELEMENT_NAME)
             .toString();
+    }
+
+    public static String getFingerprint(Presence p) {
+        // public key extension (for fingerprint)
+        ExtensionElement _pkey = p.getExtension(PublicKeyPresence.ELEMENT_NAME, PublicKeyPresence.NAMESPACE);
+
+        if (_pkey instanceof PublicKeyPresence) {
+            PublicKeyPresence pkey = (PublicKeyPresence) _pkey;
+            return pkey.getFingerprint();
+        }
+
+        return null;
     }
 
     public static class Provider extends ExtensionElementProvider<PublicKeyPresence> {
