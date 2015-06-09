@@ -42,9 +42,11 @@ import org.jxmpp.util.XmppDateTime;
  */
 public class CPIMMessage {
 
+    /** Charset used for byte encoding. */
+    public static final String CHARSET = "utf-8";
+
     private static final String MIME_TYPE = "text/plain";
     private static final String TYPE = "Message/CPIM";
-    private static final String CHARSET = "utf-8";
 
     private final String mFrom;
     private final String mTo;
@@ -112,7 +114,7 @@ public class CPIMMessage {
     }
 
     public byte[] toByteArray() throws UnsupportedEncodingException {
-        return toString().getBytes("UTF-8");
+        return toString().getBytes(CHARSET);
     }
 
     /** A very bad CPIM parser. */
