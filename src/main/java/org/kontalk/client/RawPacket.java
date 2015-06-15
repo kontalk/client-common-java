@@ -21,7 +21,11 @@ package org.kontalk.client;
 import org.jivesoftware.smack.packet.Stanza;
 
 
-/** A wrapper to a predefined XML string. */
+/**
+ * A wrapper to a predefined XML string.
+ * @deprecated never use this
+ */
+@Deprecated
 public final class RawPacket extends Stanza {
     private final String _xml;
 

@@ -21,7 +21,11 @@ package org.kontalk.client;
 import org.jivesoftware.smack.packet.Stanza;
 
 
-/** A presence stanza with type "probe". */
+/**
+ * A presence stanza with type "probe".
+ * @deprecated {use {@link org.jivesoftware.smack.packet.Presence} instead.
+ * */
+@Deprecated
 public class ProbePresence extends Stanza {
     private static final String XML = "<presence id=\"%s\" type=\"probe\" to=\"%s\"/>";
 
