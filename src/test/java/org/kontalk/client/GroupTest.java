@@ -20,8 +20,6 @@ package org.kontalk.client;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashSet;
-import java.util.Set;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.junit.Assert;
@@ -41,22 +39,19 @@ public class GroupTest {
 
     @Test
     public void testXML() throws XmlPullParserException, IOException, SmackException {
-        Set<String> member = new HashSet();
-        member.add("jid1");
-        member.add("jid2");
-        member.add("jid3");
+        String[] member = new String[]{"jid1", "jid2", "jid3"};
 
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new HashSet());
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new String[0]);
         this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LIST, new HashSet());
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.LIST, new String[0]);
         this.testGroupXML("testid", "testowner", GroupExtension.Command.LIST, member);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new HashSet());
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new String[0]);
     }
 
     private void testGroupXML(String id,
             String owner,
             GroupExtension.Command command,
-            Set<String> member)
+            String[] member)
             throws XmlPullParserException, IOException, SmackException {
 
         GroupExtension group = new GroupExtension(id, owner, command, member);
@@ -71,6 +66,6 @@ public class GroupTest {
         Assert.assertEquals(parsedGroup.getID(), id);
         Assert.assertEquals(parsedGroup.getOwner(), owner);
         Assert.assertEquals(parsedGroup.getCommand(), command);
-        Assert.assertEquals(parsedGroup.getMember().size(), member.size());
+        Assert.assertEquals(parsedGroup.getMember().length, member.length);
     }
 }

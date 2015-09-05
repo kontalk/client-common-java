@@ -40,7 +40,7 @@ public class GroupExtension implements ExtensionElement {
     private final String mId;
     private final String mOwner;
     private final Command mCommand;
-    private final Set<String> mMember;
+    private final String[] mMember;
 
     public enum Command {
         NONE(""),
@@ -71,18 +71,18 @@ public class GroupExtension implements ExtensionElement {
     }
 
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Command.NONE, new HashSet<>());
+        this(id, ownerJid, Command.NONE, new String[0]);
     }
 
-    public GroupExtension(String id, String ownerJid, Set<String> member, boolean created) {
+    public GroupExtension(String id, String ownerJid, String[] member, boolean created) {
         this(id, ownerJid, created ? Command.CREATE : Command.LIST, member);
     }
 
     public GroupExtension(String id, String ownerJid, Command command) {
-        this(id, ownerJid, command, new HashSet<>());
+        this(id, ownerJid, command, new String[0]);
     }
 
-    public GroupExtension(String id, String ownerJid, Command command, Set<String> member) {
+    public GroupExtension(String id, String ownerJid, Command command, String[] member) {
         mId = id;
         mOwner = ownerJid;
         mCommand = command;
@@ -101,7 +101,7 @@ public class GroupExtension implements ExtensionElement {
         return mCommand;
     }
 
-    public Set<String> getMember() {
+    public String[] getMember() {
         return mMember;
     }
 
@@ -125,7 +125,7 @@ public class GroupExtension implements ExtensionElement {
         if (mCommand != Command.NONE) {
             buf.attribute("command", mCommand.toString());
         }
-        if (mMember.isEmpty()) {
+        if (mMember.length == 0) {
             //buf.emptyElement(mCommand.toString());
             buf.closeEmptyElement();
         } else {
@@ -176,11 +176,11 @@ public class GroupExtension implements ExtensionElement {
             }
 
             if (id == null || owner == null || command == null) {
-                System.out.println(id+" "+owner+" "+command);
+                //System.out.println(id+" "+owner+" "+command);
                 return null;
             }
 
-            return new GroupExtension(id, owner, command, member);
+            return new GroupExtension(id, owner, command, member.toArray(new String[0]));
         }
     }
 
