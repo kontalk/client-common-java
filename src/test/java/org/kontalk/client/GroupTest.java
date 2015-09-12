@@ -43,8 +43,8 @@ public class GroupTest {
 
         this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new String[0]);
         this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LIST, new String[0]);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LIST, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new String[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, member);
         this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new String[0]);
     }
 

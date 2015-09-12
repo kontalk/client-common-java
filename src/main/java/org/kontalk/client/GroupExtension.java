@@ -46,7 +46,8 @@ public class GroupExtension implements ExtensionElement {
         NONE(""),
         CREATE("create"),
         LEAVE("part"),
-        LIST("list");
+        GET("get"),
+        RESULT("result");
 
         private final String element;
 
@@ -70,19 +71,22 @@ public class GroupExtension implements ExtensionElement {
         }
     }
 
+    /** A new group extension without command. */
     public GroupExtension(String id, String ownerJid) {
         this(id, ownerJid, Command.NONE, new String[0]);
     }
 
-    public GroupExtension(String id, String ownerJid, String[] member, boolean created) {
-        this(id, ownerJid, created ? Command.CREATE : Command.LIST, member);
+    /** A new group extension with 'create' or 'result' command. */
+    public GroupExtension(String id, String ownerJid, boolean created, String[] member) {
+        this(id, ownerJid, created ? Command.CREATE : Command.RESULT, member);
     }
 
-    public GroupExtension(String id, String ownerJid, Command command) {
-        this(id, ownerJid, command, new String[0]);
+    /** A new group extension with 'leave' or 'get' command. */
+    public GroupExtension(String id, String ownerJid, boolean leave) {
+        this(id, ownerJid, leave ? Command.LEAVE : Command.GET, new String[0]);
     }
 
-    public GroupExtension(String id, String ownerJid, Command command, String[] member) {
+    GroupExtension(String id, String ownerJid, Command command, String[] member) {
         mId = id;
         mOwner = ownerJid;
         mCommand = command;
