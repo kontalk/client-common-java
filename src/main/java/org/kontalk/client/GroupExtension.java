@@ -40,14 +40,57 @@ public class GroupExtension implements ExtensionElement {
     private final String mId;
     private final String mOwner;
     private final Command mCommand;
-    private final String[] mMember;
+    private final Member[] mMember;
+
+    public static class Member {
+
+        public enum Type {
+            NONE(""),
+            ADD("add"),
+            REMOVE("remove");
+
+            private final String element;
+
+            private Type(String element) {
+                this.element = element;
+            }
+
+            @Override
+            public String toString() {
+                return element;
+            }
+
+            public static Type fromString(String element) {
+                for (Type c : Type.values()) {
+                  if (c.element.equals(element)) {
+                    return c;
+                  }
+                }
+
+                return null;
+            }
+        }
+
+        public final String jid;
+        public final Type type;
+
+        public Member(String jid) {
+            this(jid, Type.NONE);
+        }
+
+        public Member(String jid, Type type) {
+            this.jid = jid;
+            this.type = type;
+        }
+    }
 
     public enum Command {
         NONE(""),
         CREATE("create"),
         LEAVE("part"),
         GET("get"),
-        RESULT("result");
+        RESULT("result"),
+        SET("set");
 
         private final String element;
 
@@ -73,20 +116,16 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension without command. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Command.NONE, new String[0]);
+        this(id, ownerJid, Command.NONE, new Member[0]);
     }
 
-    /** A new group extension with 'create' or 'result' command. */
-    public GroupExtension(String id, String ownerJid, boolean created, String[] member) {
-        this(id, ownerJid, created ? Command.CREATE : Command.RESULT, member);
+    /** A new group extension for the 'leave' or 'get' command. */
+    public GroupExtension(String id, String ownerJid, Command command) {
+        this(id, ownerJid, command, new Member[0]);
     }
 
-    /** A new group extension with 'leave' or 'get' command. */
-    public GroupExtension(String id, String ownerJid, boolean leave) {
-        this(id, ownerJid, leave ? Command.LEAVE : Command.GET, new String[0]);
-    }
-
-    GroupExtension(String id, String ownerJid, Command command, String[] member) {
+    /** A new group extension for the 'create', 'set' 'result' command. */
+    public GroupExtension(String id, String ownerJid, Command command, Member[] member) {
         mId = id;
         mOwner = ownerJid;
         mCommand = command;
@@ -105,7 +144,7 @@ public class GroupExtension implements ExtensionElement {
         return mCommand;
     }
 
-    public String[] getMember() {
+    public Member[] getMember() {
         return mMember;
     }
 
@@ -135,10 +174,12 @@ public class GroupExtension implements ExtensionElement {
         } else {
             buf.rightAngleBracket();
             //buf.openElement(mCommand.toString());
-            for (String jid: mMember){
+            for (Member m: mMember){
                 buf.halfOpenElement("member")
-                        .attribute("jid", jid)
-                        .closeEmptyElement();
+                        .attribute("jid", m.jid);
+                if (m.type != Member.Type.NONE)
+                    buf.attribute("type", m.type.toString());
+                buf.closeEmptyElement();
             }
             //buf.closeElement(mCommand.toString());
             buf.closeElement(ELEMENT_NAME);
@@ -155,7 +196,7 @@ public class GroupExtension implements ExtensionElement {
 
             String id = null, owner = null;
             Command command = Command.NONE;
-            Set<String> member = new HashSet<>();
+            Set<Member> member = new HashSet<>();
 
             while (!done) {
                 int eventType = parser.next();
@@ -170,7 +211,15 @@ public class GroupExtension implements ExtensionElement {
                                 command = Command.fromString(com);
                             break;
                         case "member":
-                            member.add(parser.getAttributeValue(null, "jid"));
+                            String jid = parser.getAttributeValue(null, "jid");
+                            if (jid == null)
+                                break;
+                            String t = parser.getAttributeValue(null, "type");
+                            Member.Type type = Member.Type.fromString(t);
+                            if (type != null)
+                                member.add(new Member(jid));
+                            else
+                                member.add(new Member(jid, type));
                             break;
                     }
                 } else if (eventType == XmlPullParser.END_TAG &&
@@ -184,7 +233,7 @@ public class GroupExtension implements ExtensionElement {
                 return null;
             }
 
-            return new GroupExtension(id, owner, command, member.toArray(new String[0]));
+            return new GroupExtension(id, owner, command, member.toArray(new Member[0]));
         }
     }
 

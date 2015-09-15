@@ -24,6 +24,7 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.junit.Assert;
 import org.junit.Test;
+import org.kontalk.client.GroupExtension.Member;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -39,24 +40,28 @@ public class GroupTest {
 
     @Test
     public void testXML() throws XmlPullParserException, IOException, SmackException {
-        String[] member = new String[]{"jid1", "jid2", "jid3"};
+        Member[] member = new Member[]{
+            new Member("jid1"),
+            new Member("jid2", Member.Type.ADD),
+            new Member("jid3", Member.Type.REMOVE)};
 
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new String[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new Member[0]);
         this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new String[0]);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, member);
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new String[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new Member[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.RESULT, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.SET, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new Member[0]);
     }
 
     private void testGroupXML(String id,
             String owner,
             GroupExtension.Command command,
-            String[] member)
+            Member[] member)
             throws XmlPullParserException, IOException, SmackException {
 
         GroupExtension group = new GroupExtension(id, owner, command, member);
 
-        //System.out.println("XML: "+group.toXML());
+        //System.out.println(group.toXML());
 
         ExtensionElementProvider<GroupExtension> provider = new GroupExtension.Provider();
         XmlPullParser parser = new KXmlParser();
