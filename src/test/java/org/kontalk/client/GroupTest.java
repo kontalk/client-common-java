@@ -66,6 +66,7 @@ public class GroupTest {
         ExtensionElementProvider<GroupExtension> provider = new GroupExtension.Provider();
         XmlPullParser parser = new KXmlParser();
         parser.setInput(new StringReader(group.toXML().toString()));
+        parser.next();
         GroupExtension parsedGroup = provider.parse(parser, 0);
 
         Assert.assertEquals(parsedGroup.getID(), id);

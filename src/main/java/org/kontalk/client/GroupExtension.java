@@ -192,36 +192,32 @@ public class GroupExtension implements ExtensionElement {
         @Override
         public GroupExtension parse(XmlPullParser parser, int initialDepth)
                 throws XmlPullParserException, IOException, SmackException {
-            boolean done = false;
 
-            String id = null, owner = null;
-            Command command = Command.NONE;
+            String id = parser.getAttributeValue(null, "id");
+            String owner = parser.getAttributeValue(null, "owner");
+            String c = parser.getAttributeValue(null, "command");
+            Command command = c == null ? Command.NONE : Command.fromString(c);
+
             Set<Member> member = new HashSet<>();
 
+            boolean done = false;
             while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
-                    switch (parser.getName()) {
-                        case "group":
-                            id = parser.getAttributeValue(null, "id");
-                            owner = parser.getAttributeValue(null, "owner");
-                            String com = parser.getAttributeValue(null, "command");
-                            if (com != null)
-                                command = Command.fromString(com);
-                            break;
-                        case "member":
-                            String jid = parser.getAttributeValue(null, "jid");
-                            if (jid == null)
-                                break;
-                            String t = parser.getAttributeValue(null, "type");
-                            Member.Type type = Member.Type.fromString(t);
-                            if (type != null)
-                                member.add(new Member(jid));
-                            else
-                                member.add(new Member(jid, type));
-                            break;
-                    }
+                if(eventType == XmlPullParser.END_DOCUMENT)
+                    throw new SmackException("invalid XML schema");
+
+                if (eventType == XmlPullParser.START_TAG &&
+                        "member".equals(parser.getName())) {
+                    String jid = parser.getAttributeValue(null, "jid");
+                    if (jid == null)
+                        break;
+                    String t = parser.getAttributeValue(null, "type");
+                    Member.Type type = Member.Type.fromString(t);
+                    if (type == null)
+                        member.add(new Member(jid));
+                    else
+                        member.add(new Member(jid, type));
                 } else if (eventType == XmlPullParser.END_TAG &&
                         ELEMENT_NAME.equals(parser.getName())) {
                     done = true;
@@ -229,7 +225,7 @@ public class GroupExtension implements ExtensionElement {
             }
 
             if (id == null || owner == null || command == null) {
-                //System.out.println(id+" "+owner+" "+command);
+                //System.out.println("id="+id+" owner="+owner+" com="+command);
                 return null;
             }
 
