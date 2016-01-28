@@ -45,22 +45,21 @@ public class GroupTest {
             new Member("jid2", Member.Type.ADD),
             new Member("jid3", Member.Type.REMOVE)};
 
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new Member[0], "");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new Member[0], "");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.RESULT, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.SET, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new Member[0], "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new Member[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new Member[0]);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.RESULT, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.SET, member);
+        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new Member[0]);
     }
 
     private void testGroupXML(String id,
             String owner,
             GroupExtension.Command command,
-            Member[] member,
-            String subject)
+            Member[] member)
             throws XmlPullParserException, IOException, SmackException {
 
-        GroupExtension group = new GroupExtension(id, owner, command, member, subject);
+        GroupExtension group = new GroupExtension(id, owner, command, member);
 
         //System.out.println(group.toXML());
 
@@ -74,6 +73,5 @@ public class GroupTest {
         Assert.assertEquals(parsedGroup.getOwner(), owner);
         Assert.assertEquals(parsedGroup.getCommand(), command);
         Assert.assertEquals(parsedGroup.getMember().length, member.length);
-        Assert.assertEquals(parsedGroup.getSubject(), subject);
     }
 }

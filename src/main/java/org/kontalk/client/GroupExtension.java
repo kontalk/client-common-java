@@ -41,7 +41,6 @@ public class GroupExtension implements ExtensionElement {
     private final String mOwner;
     private final Command mCommand;
     private final Member[] mMember;
-    private final String mSubject;
 
     public static class Member {
 
@@ -117,21 +116,20 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension without command. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Command.NONE, new Member[0], "");
+        this(id, ownerJid, Command.NONE, new Member[0]);
     }
 
     /** A new group extension for the 'leave' or 'get' command. */
     public GroupExtension(String id, String ownerJid, Command command) {
-        this(id, ownerJid, command, new Member[0], "");
+        this(id, ownerJid, command, new Member[0]);
     }
 
-    /** A new group extension for the 'create', 'set' or 'result' command. */
-    public GroupExtension(String id, String ownerJid, Command command, Member[] member, String subject) {
+    /** A new group extension for the 'create', 'set' 'result' command. */
+    public GroupExtension(String id, String ownerJid, Command command, Member[] member) {
         mId = id;
         mOwner = ownerJid;
         mCommand = command;
         mMember = member;
-        mSubject = subject;
     }
 
     public String getID() {
@@ -148,10 +146,6 @@ public class GroupExtension implements ExtensionElement {
 
     public Member[] getMember() {
         return mMember;
-    }
-
-    public String getSubject() {
-        return mSubject;
     }
 
     @Override
@@ -174,17 +168,12 @@ public class GroupExtension implements ExtensionElement {
         if (mCommand != Command.NONE) {
             buf.attribute("command", mCommand.toString());
         }
-        if (mMember.length == 0 && mSubject.isEmpty()) {
+        if (mMember.length == 0) {
             //buf.emptyElement(mCommand.toString());
             buf.closeEmptyElement();
         } else {
             buf.rightAngleBracket();
             //buf.openElement(mCommand.toString());
-            if (!mSubject.isEmpty()) {
-                buf.openElement("subject").
-                        append(mSubject).
-                        closeElement("subject");
-            }
             for (Member m: mMember){
                 buf.halfOpenElement("member")
                         .attribute("jid", m.jid);
@@ -210,51 +199,37 @@ public class GroupExtension implements ExtensionElement {
             Command command = c == null ? Command.NONE : Command.fromString(c);
 
             Set<Member> member = new HashSet<>();
-            String subj = "";
 
-            boolean done = false, in_subj = false;
+            boolean done = false;
             while (!done) {
                 int eventType = parser.next();
 
                 if(eventType == XmlPullParser.END_DOCUMENT)
                     throw new SmackException("invalid XML schema");
 
-                if (eventType == XmlPullParser.START_TAG) {
-                    switch(parser.getName()) {
-                        case "member":
-                            String jid = parser.getAttributeValue(null, "jid");
-                            if (jid == null)
-                                break;
-                            String t = parser.getAttributeValue(null, "type");
-                            Member.Type type = Member.Type.fromString(t);
-                            if (type == null)
-                                member.add(new Member(jid));
-                            else
-                                member.add(new Member(jid, type));
-                            break;
-                        case "subject":
-                            in_subj = true;
-                            break;
-                    }
-                } else if (eventType == XmlPullParser.TEXT && in_subj) {
-                    subj = parser.getText();
-                } else if (eventType == XmlPullParser.END_TAG)
-                    switch (parser.getName()) {
-                        case ELEMENT_NAME:
-                            done = true;
-                            break;
-                        case "subject":
-                            in_subj = false;
-                            break;
-                    }
+                if (eventType == XmlPullParser.START_TAG &&
+                        "member".equals(parser.getName())) {
+                    String jid = parser.getAttributeValue(null, "jid");
+                    if (jid == null)
+                        break;
+                    String t = parser.getAttributeValue(null, "type");
+                    Member.Type type = Member.Type.fromString(t);
+                    if (type == null)
+                        member.add(new Member(jid));
+                    else
+                        member.add(new Member(jid, type));
+                } else if (eventType == XmlPullParser.END_TAG &&
+                        ELEMENT_NAME.equals(parser.getName())) {
+                    done = true;
+                }
             }
 
-            if (id == null || owner == null || command == null || subj == null) {
+            if (id == null || owner == null || command == null) {
                 //System.out.println("id="+id+" owner="+owner+" com="+command);
                 return null;
             }
 
-            return new GroupExtension(id, owner, command, member.toArray(new Member[0]), subj);
+            return new GroupExtension(id, owner, command, member.toArray(new Member[0]));
         }
     }
 
