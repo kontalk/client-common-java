@@ -19,10 +19,8 @@
 package org.kontalk.client;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
+import java.util.HashSet;
+import java.util.Set;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
@@ -41,23 +39,99 @@ public class GroupExtension implements ExtensionElement {
 
     private final String mId;
     private final String mOwner;
-    private String mSubject;
-    private List<Member> mMembers;
-    private boolean mPart;
+    private final Command mCommand;
+    private final Member[] mMember;
+    private final String mSubject;
 
-    public GroupExtension(String id, String owner) {
-        this(id, owner, null);
+    public static class Member {
+
+        public enum Type {
+            NONE(""),
+            ADD("add"),
+            REMOVE("remove");
+
+            private final String element;
+
+            private Type(String element) {
+                this.element = element;
+            }
+
+            @Override
+            public String toString() {
+                return element;
+            }
+
+            public static Type fromString(String element) {
+                for (Type c : Type.values()) {
+                  if (c.element.equals(element)) {
+                    return c;
+                  }
+                }
+
+                return null;
+            }
+        }
+
+        public final String jid;
+        public final Type type;
+
+        public Member(String jid) {
+            this(jid, Type.NONE);
+        }
+
+        public Member(String jid, Type type) {
+            this.jid = jid;
+            this.type = type;
+        }
     }
 
-    public GroupExtension(String id, String owner, String subject) {
-        this(id, owner, subject, null);
+    public enum Command {
+        NONE(""),
+        CREATE("create"),
+        LEAVE("part"),
+        GET("get"),
+        RESULT("result"),
+        SET("set");
+
+        private final String element;
+
+        private Command(String element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return element;
+        }
+
+        public static Command fromString(String element) {
+            for (Command c : Command.values()) {
+              if (c.element.equals(element)) {
+                return c;
+              }
+            }
+
+            return null;
+        }
     }
 
-    public GroupExtension(String id, String owner, String subject, Collection<Member> members) {
+    /** A new group extension without command. */
+    public GroupExtension(String id, String ownerJid) {
+        this(id, ownerJid, Command.NONE, new Member[0], "");
+    }
+
+    /** A new group extension for the 'leave' or 'get' command. */
+    public GroupExtension(String id, String ownerJid, Command command) {
+        this(id, ownerJid, command, new Member[0], "");
+    }
+
+    /** A new group extension for the 'create', 'set' or 'result' command. */
+    public GroupExtension(String id, String ownerJid, Command command, Member[] member, String subject) {
         mId = id;
-        mOwner = owner;
+        mOwner = ownerJid;
+        mCommand = command;
+        mMember = member;
         mSubject = subject;
-        mMembers = members != null ? new LinkedList<>(members) : null;
     }
 
     public String getID() {
@@ -68,39 +142,16 @@ public class GroupExtension implements ExtensionElement {
         return mOwner;
     }
 
-    private void ensureMembers() {
-        if (mMembers == null)
-            mMembers = new LinkedList<>();
+    public Command getCommand() {
+        return mCommand;
     }
 
-    public void addMember(String jid) {
-        ensureMembers();
-        mMembers.add(new Member(jid, Member.Operation.ADD));
-    }
-
-    public void removeMember(String jid) {
-        ensureMembers();
-        mMembers.add(new Member(jid, Member.Operation.REMOVE));
-    }
-
-    public List<Member> getMembers() {
-        return mMembers;
+    public Member[] getMember() {
+        return mMember;
     }
 
     public String getSubject() {
         return mSubject;
-    }
-
-    public void setSubject(String subject) {
-        mSubject = subject;
-    }
-
-    public void part() {
-        mPart = true;
-    }
-
-    public boolean hasPart() {
-        return mPart;
     }
 
     @Override
@@ -120,33 +171,30 @@ public class GroupExtension implements ExtensionElement {
                 .xmlnsAttribute(NAMESPACE)
                 .attribute("id", mId)
                 .attribute("owner", mOwner);
-
-        if (mSubject == null && (mMembers == null || mMembers.isEmpty())) {
-            // nothing to append
-            buf.closeEmptyElement();
+        if (mCommand != Command.NONE) {
+            buf.attribute("command", mCommand.toString());
         }
-        else {
+        if (mMember.length == 0 && mSubject.isEmpty()) {
+            //buf.emptyElement(mCommand.toString());
+            buf.closeEmptyElement();
+        } else {
             buf.rightAngleBracket();
-
-            if (mPart) {
-                buf.emptyElement("part");
+            //buf.openElement(mCommand.toString());
+            if (!mSubject.isEmpty()) {
+                buf.openElement("subject").
+                        append(mSubject).
+                        closeElement("subject");
             }
-
-            if (mSubject != null) {
-                buf.element("subject", mSubject);
+            for (Member m: mMember){
+                buf.halfOpenElement("member")
+                        .attribute("jid", m.jid);
+                if (m.type != Member.Type.NONE)
+                    buf.attribute("type", m.type.toString());
+                buf.closeEmptyElement();
             }
-
-            if (mMembers != null) {
-                for (Member m : mMembers) {
-                    buf.halfOpenElement(m.operation.toString())
-                        .attribute("jid", m.jid)
-                        .closeEmptyElement();
-                }
-            }
-
+            //buf.closeElement(mCommand.toString());
             buf.closeElement(ELEMENT_NAME);
         }
-
         return buf.toString();
     }
 
@@ -158,100 +206,55 @@ public class GroupExtension implements ExtensionElement {
 
             String id = parser.getAttributeValue(null, "id");
             String owner = parser.getAttributeValue(null, "owner");
+            String c = parser.getAttributeValue(null, "command");
+            Command command = c == null ? Command.NONE : Command.fromString(c);
 
-            List<Member> members = new LinkedList<>();
-            String subject = null;
-            boolean part = false;
+            Set<Member> member = new HashSet<>();
+            String subj = "";
 
-            boolean done = false, in_subject = false;
+            boolean done = false, in_subj = false;
             while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
-                    String s = parser.getName();
-                    switch (s) {
-                        case "subject":
-                            in_subject = true;
-                            break;
-                        case "part":
-                            part = true;
-                            break;
-                        default:
-                            Member.Operation op = Member.Operation.fromString(s);
-                            if (op != null) {
-                                String jid = parser.getAttributeValue(null, "jid");
-                                if (jid == null)
-                                    continue;
+                if(eventType == XmlPullParser.END_DOCUMENT)
+                    throw new SmackException("invalid XML schema");
 
-                                members.add(new Member(jid, op));
-                            }
+                if (eventType == XmlPullParser.START_TAG) {
+                    switch(parser.getName()) {
+                        case "member":
+                            String jid = parser.getAttributeValue(null, "jid");
+                            if (jid == null)
+                                break;
+                            String t = parser.getAttributeValue(null, "type");
+                            Member.Type type = Member.Type.fromString(t);
+                            if (type == null)
+                                member.add(new Member(jid));
+                            else
+                                member.add(new Member(jid, type));
+                            break;
+                        case "subject":
+                            in_subj = true;
                             break;
                     }
-                }
-                else if (eventType == XmlPullParser.TEXT && in_subject) {
-                    subject = parser.getText();
-                }
-                else if (eventType == XmlPullParser.END_TAG) {
+                } else if (eventType == XmlPullParser.TEXT && in_subj) {
+                    subj = parser.getText();
+                } else if (eventType == XmlPullParser.END_TAG)
                     switch (parser.getName()) {
                         case ELEMENT_NAME:
                             done = true;
                             break;
                         case "subject":
-                            in_subject = false;
+                            in_subj = false;
                             break;
                     }
-                }
             }
 
-            if (id != null && owner != null) {
-                GroupExtension ext = new GroupExtension(id, owner, subject, members);
-                if (part)
-                    ext.part();
-                return ext;
-            }
-
-            return null;
-        }
-    }
-
-    public static class Member {
-
-        public enum Operation {
-            ADD("add"),
-            REMOVE("remove");
-
-            private final String element;
-
-            Operation(String element) {
-                this.element = element;
-            }
-
-            @Override
-            public String toString() {
-                return element;
-            }
-
-            public static Operation fromString(String element) {
-                for (Operation c : Operation.values()) {
-                    if (c.element.equals(element)) {
-                        return c;
-                    }
-                }
-
+            if (id == null || owner == null || command == null || subj == null) {
+                //System.out.println("id="+id+" owner="+owner+" com="+command);
                 return null;
             }
-        }
 
-        public final String jid;
-        public final Operation operation;
-
-        public Member(String jid) {
-            this(jid, Operation.ADD);
-        }
-
-        public Member(String jid, Operation operation) {
-            this.jid = jid;
-            this.operation = operation;
+            return new GroupExtension(id, owner, command, member.toArray(new Member[0]), subj);
         }
     }
 
