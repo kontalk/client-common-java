@@ -47,13 +47,14 @@ public class GroupTest {
             new Member("jid1"),
             new Member("jid2", Member.Operation.ADD),
             new Member("jid3", Member.Operation.REMOVE));
+        List<Member> empty = Collections.<Member>emptyList();
 
-        this.testGroupXML("testid", "testowner", GroupExtension.Type.NONE, Collections.emptyList(), "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.NONE, empty, "");
         this.testGroupXML("testid", "testowner", GroupExtension.Type.CREATE, members, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Type.GET, Collections.emptyList(), "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.GET, empty, "");
         this.testGroupXML("testid", "testowner", GroupExtension.Type.RESULT, members, "_subj_");
         this.testGroupXML("testid", "testowner", GroupExtension.Type.SET, members, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Type.PART, Collections.emptyList(), "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.PART, empty, "");
     }
 
     private void testGroupXML(String id,
