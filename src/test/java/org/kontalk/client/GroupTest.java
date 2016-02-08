@@ -20,6 +20,9 @@ package org.kontalk.client;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.junit.Assert;
@@ -40,29 +43,27 @@ public class GroupTest {
 
     @Test
     public void testXML() throws XmlPullParserException, IOException, SmackException {
-        Member[] member = new Member[]{
+        List<Member> members = Arrays.asList(
             new Member("jid1"),
-            new Member("jid2", Member.Type.ADD),
-            new Member("jid3", Member.Type.REMOVE)};
+            new Member("jid2", Member.Operation.ADD),
+            new Member("jid3", Member.Operation.REMOVE));
 
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.NONE, new Member[0], "");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.CREATE, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.GET, new Member[0], "");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.RESULT, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.SET, member, "_subj_");
-        this.testGroupXML("testid", "testowner", GroupExtension.Command.LEAVE, new Member[0], "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.NONE, Collections.emptyList(), "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.CREATE, members, "_subj_");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.GET, Collections.emptyList(), "");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.RESULT, members, "_subj_");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.SET, members, "_subj_");
+        this.testGroupXML("testid", "testowner", GroupExtension.Type.PART, Collections.emptyList(), "");
     }
 
     private void testGroupXML(String id,
             String owner,
-            GroupExtension.Command command,
-            Member[] member,
+            GroupExtension.Type type,
+            List<Member> members,
             String subject)
             throws XmlPullParserException, IOException, SmackException {
 
-        GroupExtension group = new GroupExtension(id, owner, command, member, subject);
-
-        //System.out.println(group.toXML());
+        GroupExtension group = new GroupExtension(id, owner, type, subject, members);
 
         ExtensionElementProvider<GroupExtension> provider = new GroupExtension.Provider();
         XmlPullParser parser = new KXmlParser();
@@ -72,8 +73,8 @@ public class GroupTest {
 
         Assert.assertEquals(parsedGroup.getID(), id);
         Assert.assertEquals(parsedGroup.getOwner(), owner);
-        Assert.assertEquals(parsedGroup.getCommand(), command);
-        Assert.assertEquals(parsedGroup.getMember().length, member.length);
+        Assert.assertEquals(parsedGroup.getType(), type);
+        Assert.assertEquals(parsedGroup.getMembers().size(), members.size());
         Assert.assertEquals(parsedGroup.getSubject(), subject);
     }
 }
