@@ -76,12 +76,12 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension with default type. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Type.NONE, "", new ArrayList<>());
+        this(id, ownerJid, Type.NONE, "", new ArrayList<Member>());
     }
 
     /** A new group extension with type 'leave' or 'get'. */
     public GroupExtension(String id, String ownerJid, Type type) {
-        this(id, ownerJid, type, "", new ArrayList<>());
+        this(id, ownerJid, type, "", new ArrayList<Member>());
     }
 
     /** A new group extension with type 'create', 'set' or 'result'. */
