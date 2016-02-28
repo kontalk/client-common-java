@@ -27,6 +27,7 @@ import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
+import org.jxmpp.util.XmppStringUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -66,6 +67,11 @@ public class GroupExtension implements ExtensionElement {
 
     public String getOwner() {
         return mOwner;
+    }
+
+    /** Returns a JID for this group. Only for internal use, it is not a real JID. */
+    public String getJID() {
+        return XmppStringUtils.completeJidFrom(mId, mOwner);
     }
 
     private void ensureMembers() {
