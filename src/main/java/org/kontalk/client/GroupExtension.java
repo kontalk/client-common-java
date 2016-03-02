@@ -19,10 +19,9 @@
 package org.kontalk.client;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
-
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
@@ -30,6 +29,7 @@ import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jxmpp.util.XmppStringUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
 
 /**
  * Group extension.
@@ -42,23 +42,57 @@ public class GroupExtension implements ExtensionElement {
 
     private final String mId;
     private final String mOwner;
-    private String mSubject;
-    private List<Member> mMembers;
-    private boolean mPart;
+    private final Type mType;
+    private final String mSubject;
+    private final List<Member> mMembers;
 
-    public GroupExtension(String id, String owner) {
-        this(id, owner, null);
+    public enum Type {
+        NONE(""),
+        CREATE("create"),
+        PART("part"),
+        GET("get"),
+        RESULT("result"),
+        SET("set");
+
+        private final String element;
+
+        private Type(String element) {
+            this.element = element;
+        }
+
+        @Override
+        public String toString() {
+            return element;
+        }
+
+        public static Type fromString(String element) {
+            for (Type c : Type.values()) {
+              if (c.element.equals(element)) {
+                return c;
+              }
+            }
+
+            return null;
+        }
     }
 
-    public GroupExtension(String id, String owner, String subject) {
-        this(id, owner, subject, null);
+    /** A new group extension with default type. */
+    public GroupExtension(String id, String ownerJid) {
+        this(id, ownerJid, Type.NONE, "", new ArrayList<Member>());
     }
 
-    public GroupExtension(String id, String owner, String subject, Collection<Member> members) {
+    /** A new group extension with type 'leave' or 'get'. */
+    public GroupExtension(String id, String ownerJid, Type type) {
+        this(id, ownerJid, type, "", new ArrayList<Member>());
+    }
+
+    /** A new group extension with type 'create', 'set' or 'result'. */
+    public GroupExtension(String id, String ownerJid, Type type, String subject, Collection<Member> member) {
         mId = id;
-        mOwner = owner;
+        mOwner = ownerJid;
+        mType = type;
+        mMembers = new ArrayList<>(member);
         mSubject = subject;
-        mMembers = members != null ? new LinkedList<>(members) : null;
     }
 
     public String getID() {
@@ -74,20 +108,18 @@ public class GroupExtension implements ExtensionElement {
         return XmppStringUtils.completeJidFrom(mId, mOwner);
     }
 
-    private void ensureMembers() {
-        if (mMembers == null)
-            mMembers = new LinkedList<>();
+    public Type getType() {
+        return mType;
     }
 
     public void addMember(String jid) {
-        ensureMembers();
         mMembers.add(new Member(jid, Member.Operation.ADD));
     }
 
     public void removeMember(String jid) {
-        ensureMembers();
         mMembers.add(new Member(jid, Member.Operation.REMOVE));
     }
+
 
     public List<Member> getMembers() {
         return mMembers;
@@ -95,18 +127,6 @@ public class GroupExtension implements ExtensionElement {
 
     public String getSubject() {
         return mSubject;
-    }
-
-    public void setSubject(String subject) {
-        mSubject = subject;
-    }
-
-    public void part() {
-        mPart = true;
-    }
-
-    public boolean hasPart() {
-        return mPart;
     }
 
     @Override
@@ -126,28 +146,22 @@ public class GroupExtension implements ExtensionElement {
                 .xmlnsAttribute(NAMESPACE)
                 .attribute("id", mId)
                 .attribute("owner", mOwner);
-
-        if (mSubject == null && (mMembers == null || mMembers.isEmpty())) {
+        if (mType != Type.NONE) {
+            buf.attribute("type", mType.toString());
+        }
+        if (mMembers.isEmpty() && mSubject.isEmpty()) {
             // nothing to append
             buf.closeEmptyElement();
-        }
-        else {
+        } else {
             buf.rightAngleBracket();
 
-            if (mPart) {
-                buf.emptyElement("part");
-            }
-
-            if (mSubject != null) {
+            if (!mSubject.isEmpty()) {
                 buf.element("subject", mSubject);
             }
-
-            if (mMembers != null) {
-                for (Member m : mMembers) {
-                    buf.halfOpenElement(m.operation.toString())
+            for (Member m: mMembers){
+                buf.halfOpenElement(m.operation.toString())
                         .attribute("jid", m.jid)
                         .closeEmptyElement();
-                }
             }
 
             buf.closeElement(ELEMENT_NAME);
@@ -164,23 +178,24 @@ public class GroupExtension implements ExtensionElement {
 
             String id = parser.getAttributeValue(null, "id");
             String owner = parser.getAttributeValue(null, "owner");
+            String c = parser.getAttributeValue(null, "type");
+            Type type = c == null ? Type.NONE : Type.fromString(c);
 
-            List<Member> members = new LinkedList<>();
-            String subject = null;
-            boolean part = false;
+            List<Member> members = new ArrayList<>();
+            String subj = "";
 
             boolean done = false, in_subject = false;
             while (!done) {
                 int eventType = parser.next();
 
+                if(eventType == XmlPullParser.END_DOCUMENT)
+                    throw new SmackException("invalid XML schema");
+
                 if (eventType == XmlPullParser.START_TAG) {
                     String s = parser.getName();
-                    switch (s) {
+                    switch(s) {
                         case "subject":
                             in_subject = true;
-                            break;
-                        case "part":
-                            part = true;
                             break;
                         default:
                             Member.Operation op = Member.Operation.fromString(s);
@@ -193,11 +208,9 @@ public class GroupExtension implements ExtensionElement {
                             }
                             break;
                     }
-                }
-                else if (eventType == XmlPullParser.TEXT && in_subject) {
-                    subject = parser.getText();
-                }
-                else if (eventType == XmlPullParser.END_TAG) {
+                } else if (eventType == XmlPullParser.TEXT && in_subject) {
+                    subj = parser.getText();
+                } else if (eventType == XmlPullParser.END_TAG)
                     switch (parser.getName()) {
                         case ELEMENT_NAME:
                             done = true;
@@ -206,29 +219,26 @@ public class GroupExtension implements ExtensionElement {
                             in_subject = false;
                             break;
                     }
-                }
             }
 
-            if (id != null && owner != null) {
-                GroupExtension ext = new GroupExtension(id, owner, subject, members);
-                if (part)
-                    ext.part();
-                return ext;
+            if (id == null || owner == null || type == null || subj == null) {
+                return null;
             }
 
-            return null;
+            return new GroupExtension(id, owner, type, subj, members);
         }
     }
 
-    public static class Member {
+        public static class Member {
 
         public enum Operation {
+            NONE("member"),
             ADD("add"),
             REMOVE("remove");
 
             private final String element;
 
-            Operation(String element) {
+            private Operation(String element) {
                 this.element = element;
             }
 
@@ -239,9 +249,9 @@ public class GroupExtension implements ExtensionElement {
 
             public static Operation fromString(String element) {
                 for (Operation c : Operation.values()) {
-                    if (c.element.equals(element)) {
-                        return c;
-                    }
+                  if (c.element.equals(element)) {
+                    return c;
+                  }
                 }
 
                 return null;
@@ -252,7 +262,7 @@ public class GroupExtension implements ExtensionElement {
         public final Operation operation;
 
         public Member(String jid) {
-            this(jid, Operation.ADD);
+            this(jid, Operation.NONE);
         }
 
         public Member(String jid, Operation operation) {
@@ -260,5 +270,4 @@ public class GroupExtension implements ExtensionElement {
             this.operation = operation;
         }
     }
-
 }
