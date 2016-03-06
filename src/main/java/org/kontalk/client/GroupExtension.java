@@ -24,7 +24,9 @@ import java.util.Collection;
 import java.util.List;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jxmpp.util.XmppStringUtils;
 import org.xmlpull.v1.XmlPullParser;
@@ -78,12 +80,12 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension with default type. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Type.NONE, "", new ArrayList<Member>());
+        this(id, ownerJid, Type.NONE, null, new ArrayList<Member>());
     }
 
     /** A new group extension with type 'leave' or 'get'. */
     public GroupExtension(String id, String ownerJid, Type type) {
-        this(id, ownerJid, type, "", new ArrayList<Member>());
+        this(id, ownerJid, type, null, new ArrayList<Member>());
     }
 
     /** A new group extension with type 'create', 'set' or 'result'. */
@@ -120,7 +122,6 @@ public class GroupExtension implements ExtensionElement {
         mMembers.add(new Member(jid, Member.Operation.REMOVE));
     }
 
-
     public List<Member> getMembers() {
         return mMembers;
     }
@@ -149,13 +150,13 @@ public class GroupExtension implements ExtensionElement {
         if (mType != Type.NONE) {
             buf.attribute("type", mType.toString());
         }
-        if (mMembers.isEmpty() && mSubject.isEmpty()) {
+        if (mMembers.isEmpty() && StringUtils.isNullOrEmpty(mSubject)) {
             // nothing to append
             buf.closeEmptyElement();
         } else {
             buf.rightAngleBracket();
 
-            if (!mSubject.isEmpty()) {
+            if (!StringUtils.isNullOrEmpty(mSubject)) {
                 buf.element("subject", mSubject);
             }
             for (Member m: mMembers){
@@ -168,6 +169,51 @@ public class GroupExtension implements ExtensionElement {
         }
 
         return buf.toString();
+    }
+
+    public static GroupExtension addCreateGroup(Stanza message, String groupId, String groupOwner, String subject, String[] members) {
+        List<Member> membersList = new ArrayList<>(members.length);
+        for (String m : members)
+            membersList.add(new Member(m, Member.Operation.NONE));
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.CREATE, subject, membersList);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addAddMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers) {
+        List<Member> membersList = new ArrayList<>(members.length+addMembers.length);
+        for (String m : members)
+            membersList.add(new Member(m, Member.Operation.NONE));
+        for (String m : addMembers)
+            membersList.add(new Member(m, Member.Operation.ADD));
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, membersList);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addRemoveMembers(Stanza message, String groupId, String groupOwner, String[] removeMembers) {
+        List<Member> membersList = new ArrayList<>(removeMembers.length);
+        for (String m : removeMembers)
+            membersList.add(new Member(m, Member.Operation.REMOVE));
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, null, membersList);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addSetSubject(Stanza message, String groupId, String groupOwner, String subject) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, null);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addGroupInfo(Stanza message, String groupId, String groupOwner) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension from(Stanza message) {
+        return message.getExtension(GroupExtension.ELEMENT_NAME, GroupExtension.NAMESPACE);
     }
 
     public static class Provider extends ExtensionElementProvider<GroupExtension> {
