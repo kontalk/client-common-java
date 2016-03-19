@@ -180,6 +180,12 @@ public class GroupExtension implements ExtensionElement {
         return ext;
     }
 
+    public static GroupExtension addLeaveGroup(Stanza message, String groupId, String groupOwner) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.PART);
+        message.addExtension(ext);
+        return ext;
+    }
+
     public static GroupExtension addAddMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers) {
         List<Member> membersList = new ArrayList<>(members.length+addMembers.length);
         for (String m : members)

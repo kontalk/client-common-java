@@ -89,6 +89,10 @@ public class KontalkGroupManager extends Manager {
             GroupExtension.addCreateGroup(message, mGroupId, mGroupOwner, mSubject, mMembers);
         }
 
+        public void leave(Stanza message) {
+            GroupExtension.addLeaveGroup(message, mGroupId, mGroupOwner);
+        }
+
         // TODO public void addMembers(String subject, String[] currentMembers, String[] newMembers) {
         // TODO public void removeMembers(String subject, String[] currentMembers, String[] removedMembers) {
 
@@ -110,9 +114,15 @@ public class KontalkGroupManager extends Manager {
             message.addExtension(p);
         }
 
+        public String getJID() {
+            return XmppStringUtils.completeJidFrom(mGroupId, mGroupOwner);
+        }
+
         public boolean checkRequest(Stanza packet) {
-            // TODO check group ownership and permissions and blah, blah, blah
-            return true;
+            GroupExtension group = GroupExtension.from(packet);
+            // group modification commands are allowed only by the owner
+            return group != null && group.getJID().equalsIgnoreCase(getJID()) &&
+                !(!isOwned() && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
         }
     }
 
