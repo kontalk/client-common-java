@@ -80,7 +80,11 @@ public class KontalkGroupManager extends Manager {
         }
 
         public boolean isOwned() {
-            return mConnection.getUser().equalsIgnoreCase(mGroupOwner);
+            return isOwned(mConnection.getUser());
+        }
+
+        public boolean isOwned(String by) {
+            return XmppStringUtils.parseBareJid(by).equalsIgnoreCase(mGroupOwner);
         }
 
         public void create(String subject, String[] members, Stanza message) {
@@ -122,7 +126,7 @@ public class KontalkGroupManager extends Manager {
             GroupExtension group = GroupExtension.from(packet);
             // group modification commands are allowed only by the owner
             return group != null && group.getJID().equalsIgnoreCase(getJID()) &&
-                !(!isOwned() && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
+                !(!isOwned(packet.getFrom()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
         }
     }
 
