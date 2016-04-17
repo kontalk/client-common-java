@@ -105,6 +105,13 @@ public class KontalkGroupManager extends Manager {
             GroupExtension.addSetSubject(message, mGroupId, mGroupOwner, mSubject);
         }
 
+        public void addRemoveMembers(String subject, String[] members, String[] added, String[] removed, Stanza message) {
+            mSubject = subject;
+            mMembers = members;
+            GroupExtension.addEditMembers(message, mGroupId, mGroupOwner, mSubject,
+                mMembers, added, removed);
+        }
+
         public void groupInfo(Stanza message) {
             GroupExtension.addGroupInfo(message, mGroupId, mGroupOwner);
         }
@@ -127,6 +134,12 @@ public class KontalkGroupManager extends Manager {
             // group modification commands are allowed only by the owner
             return group != null && group.getJID().equalsIgnoreCase(getJID()) &&
                 !(!isOwned(packet.getFrom()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
+        }
+
+        /** Checks whether the given group JID is owned by the given JID. */
+        public static boolean checkOwnership(String groupJid, String checkJid) {
+            String owner = XmppStringUtils.parseDomain(groupJid);
+            return XmppStringUtils.parseBareJid(checkJid).equalsIgnoreCase(owner);
         }
     }
 

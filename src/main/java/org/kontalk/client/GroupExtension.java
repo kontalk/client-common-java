@@ -186,22 +186,28 @@ public class GroupExtension implements ExtensionElement {
         return ext;
     }
 
-    public static GroupExtension addAddMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers) {
-        List<Member> membersList = new ArrayList<>(members.length+addMembers.length);
+    public static GroupExtension addEditMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers, String[] removeMembers) {
+        if (addMembers == null && removeMembers == null)
+            throw new IllegalArgumentException("At least one of add or remove members must not be null");
+
+        List<Member> membersList = new ArrayList<>(members.length +
+            (addMembers != null ? addMembers.length : 0) +
+            (removeMembers != null ? removeMembers.length : 0));
+
         for (String m : members)
             membersList.add(new Member(m, Member.Operation.NONE));
-        for (String m : addMembers)
-            membersList.add(new Member(m, Member.Operation.ADD));
-        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, membersList);
-        message.addExtension(ext);
-        return ext;
-    }
 
-    public static GroupExtension addRemoveMembers(Stanza message, String groupId, String groupOwner, String[] removeMembers) {
-        List<Member> membersList = new ArrayList<>(removeMembers.length);
-        for (String m : removeMembers)
-            membersList.add(new Member(m, Member.Operation.REMOVE));
-        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, null, membersList);
+        if (addMembers != null) {
+            for (String m : addMembers)
+                membersList.add(new Member(m, Member.Operation.ADD));
+        }
+
+        if (removeMembers != null) {
+            for (String m : removeMembers)
+                membersList.add(new Member(m, Member.Operation.REMOVE));
+        }
+
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, membersList);
         message.addExtension(ext);
         return ext;
     }
