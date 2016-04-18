@@ -1,6 +1,6 @@
 /*
  * Kontalk client common library
- * Copyright (C) 2015 Kontalk Devteam <devteam@kontalk.org>
+ * Copyright (C) 2016 Kontalk Devteam <devteam@kontalk.org>
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ package org.kontalk.client;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Collections;
 
 import org.jivesoftware.smack.SmackException;
 import org.junit.Before;
@@ -58,8 +59,7 @@ public class GroupExtensionTest {
 
     @Test
     public void testCreate() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost");
-        ext.setSubject("Mad group");
+        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.CREATE, "Mad group", Collections.<Member>emptyList());
         ext.addMember("alpha@localhost");
         ext.addMember("beta@localhost");
 
@@ -86,15 +86,13 @@ public class GroupExtensionTest {
 
     @Test
     public void testRemove() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost");
-        ext.setSubject("Mad group");
+        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.SET);
         ext.removeMember("alpha@localhost");
 
         GroupExtension parsed = parse(ext.toXML());
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());
-        assertEquals("Mad group", parsed.getSubject());
         assertNotNull(ext.getMembers());
         assertEquals(1, ext.getMembers().size());
 
@@ -108,15 +106,13 @@ public class GroupExtensionTest {
 
     @Test
     public void testPart() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost");
-        ext.part();
+        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.PART);
 
         GroupExtension parsed = parse(ext.toXML());
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());
-        assertNull(ext.getMembers());
-        assertEquals(true, ext.hasPart());
+        assertEquals(Collections.emptyList(), ext.getMembers());
     }
 
     private GroupExtension parse(CharSequence xml) throws IOException, XmlPullParserException, SmackException {
