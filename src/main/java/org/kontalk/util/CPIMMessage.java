@@ -1,6 +1,6 @@
 /*
  * Kontalk client common library
- * Copyright (C) 2015 Kontalk Devteam <devteam@kontalk.org>
+ * Copyright (C) 2016 Kontalk Devteam <devteam@kontalk.org>
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public class CPIMMessage {
     private static final String TYPE = "Message/CPIM";
 
     private final String mFrom;
-    private final String mTo;
+    private final String[] mTo;
     private final Date mDate;
     private final String mMime;
     private final CharSequence mBody;
@@ -57,11 +57,11 @@ public class CPIMMessage {
     private StringBuilder mBuf;
 
     /** Constructs a new plain text message. */
-    public CPIMMessage(String from, String to, Date date, String body) {
+    public CPIMMessage(String from, String[] to, Date date, String body) {
         this(from, to, date, MIME_TYPE, body);
     }
 
-    public CPIMMessage(String from, String to, Date date, String mime, CharSequence body) {
+    public CPIMMessage(String from, String[] to, Date date, String mime, CharSequence body) {
         mFrom = from;
         mTo = to;
         mDate = date;
@@ -73,7 +73,7 @@ public class CPIMMessage {
         return mFrom;
     }
 
-    public String getTo() {
+    public String[] getTo() {
         return mTo;
     }
 
@@ -94,12 +94,19 @@ public class CPIMMessage {
             String date = XmppDateTime.DateFormatType
                 .XEP_0082_DATETIME_PROFILE.format(mDate);
 
+            StringBuilder to = new StringBuilder();
+            for(String item : mTo){
+                if (to.length() > 0)
+                    to.append("; ");
+                to.append(item);
+            }
+
             mBuf = new StringBuilder("Content-type: ")
                 .append(TYPE)
                 .append("\n\nFrom: ")
                 .append(mFrom)
                 .append("\nTo: ")
-                .append(mTo)
+                .append(to.toString())
                 .append("\nDateTime: ")
                 .append(date)
                 .append("\n\nContent-type: ")
@@ -122,10 +129,10 @@ public class CPIMMessage {
         CPIMParser p = new CPIMParser(data);
 
         String from = null,
-            to = null,
             date = null,
             type = null,
             contents;
+        String[] to = null;
 
         // first pass: CPIM content type
         CPIMParser.CPIMHeader h;
@@ -145,11 +152,10 @@ public class CPIMMessage {
             }
 
             else if ("To".equalsIgnoreCase(h.name)) {
-                to = h.value;
-
-                int pos = to.indexOf(';');
-                if (pos >= 0)
-                    to = to.substring(0, pos).trim();
+                to = h.value.split(";");
+                for (int i = 0; i < to.length; i++) {
+                    to[i] = to[i].trim();
+                }
             }
 
             else if ("DateTime".equalsIgnoreCase(h.name)) {

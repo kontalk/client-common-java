@@ -1,6 +1,6 @@
 /*
  * Kontalk client common library
- * Copyright (C) 2015 Kontalk Devteam <devteam@kontalk.org>
+ * Copyright (C) 2016 Kontalk Devteam <devteam@kontalk.org>
 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,10 +24,14 @@ import java.util.Collection;
 import java.util.List;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
+import org.jxmpp.util.XmppStringUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
+
 
 /**
  * Group extension.
@@ -76,12 +80,12 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension with default type. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Type.NONE, "", new ArrayList<Member>());
+        this(id, ownerJid, Type.NONE, null, new ArrayList<Member>());
     }
 
     /** A new group extension with type 'leave' or 'get'. */
     public GroupExtension(String id, String ownerJid, Type type) {
-        this(id, ownerJid, type, "", new ArrayList<Member>());
+        this(id, ownerJid, type, null, new ArrayList<Member>());
     }
 
     /** A new group extension with type 'create', 'set' or 'result'. */
@@ -101,6 +105,11 @@ public class GroupExtension implements ExtensionElement {
         return mOwner;
     }
 
+    /** Returns a JID for this group. Only for internal use, it is not a real JID. */
+    public String getJID() {
+        return XmppStringUtils.completeJidFrom(mId, mOwner);
+    }
+
     public Type getType() {
         return mType;
     }
@@ -112,7 +121,6 @@ public class GroupExtension implements ExtensionElement {
     public void removeMember(String jid) {
         mMembers.add(new Member(jid, Member.Operation.REMOVE));
     }
-
 
     public List<Member> getMembers() {
         return mMembers;
@@ -142,13 +150,13 @@ public class GroupExtension implements ExtensionElement {
         if (mType != Type.NONE) {
             buf.attribute("type", mType.toString());
         }
-        if (mMembers.isEmpty() && mSubject.isEmpty()) {
+        if (mMembers.isEmpty() && StringUtils.isNullOrEmpty(mSubject)) {
             // nothing to append
             buf.closeEmptyElement();
         } else {
             buf.rightAngleBracket();
 
-            if (!mSubject.isEmpty()) {
+            if (!StringUtils.isNullOrEmpty(mSubject)) {
                 buf.element("subject", mSubject);
             }
             for (Member m: mMembers){
@@ -161,6 +169,63 @@ public class GroupExtension implements ExtensionElement {
         }
 
         return buf.toString();
+    }
+
+    public static GroupExtension addCreateGroup(Stanza message, String groupId, String groupOwner, String subject, String[] members) {
+        List<Member> membersList = new ArrayList<>(members.length);
+        for (String m : members)
+            membersList.add(new Member(m, Member.Operation.NONE));
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.CREATE, subject, membersList);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addLeaveGroup(Stanza message, String groupId, String groupOwner) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.PART);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addEditMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers, String[] removeMembers) {
+        if (addMembers == null && removeMembers == null)
+            throw new IllegalArgumentException("At least one of add or remove members must not be null");
+
+        List<Member> membersList = new ArrayList<>(members.length +
+            (addMembers != null ? addMembers.length : 0) +
+            (removeMembers != null ? removeMembers.length : 0));
+
+        for (String m : members)
+            membersList.add(new Member(m, Member.Operation.NONE));
+
+        if (addMembers != null) {
+            for (String m : addMembers)
+                membersList.add(new Member(m, Member.Operation.ADD));
+        }
+
+        if (removeMembers != null) {
+            for (String m : removeMembers)
+                membersList.add(new Member(m, Member.Operation.REMOVE));
+        }
+
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, membersList);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addSetSubject(Stanza message, String groupId, String groupOwner, String subject) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, null);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension addGroupInfo(Stanza message, String groupId, String groupOwner) {
+        GroupExtension ext = new GroupExtension(groupId, groupOwner);
+        message.addExtension(ext);
+        return ext;
+    }
+
+    public static GroupExtension from(Stanza message) {
+        return message.getExtension(GroupExtension.ELEMENT_NAME, GroupExtension.NAMESPACE);
     }
 
     public static class Provider extends ExtensionElementProvider<GroupExtension> {
