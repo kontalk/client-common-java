@@ -21,6 +21,7 @@ package org.kontalk.client;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
@@ -80,12 +81,17 @@ public class GroupExtension implements ExtensionElement {
 
     /** A new group extension with default type. */
     public GroupExtension(String id, String ownerJid) {
-        this(id, ownerJid, Type.NONE, null, new ArrayList<Member>());
+        this(id, ownerJid, Type.NONE, null, Collections.<Member>emptyList());
     }
 
     /** A new group extension with type 'leave' or 'get'. */
     public GroupExtension(String id, String ownerJid, Type type) {
-        this(id, ownerJid, type, null, new ArrayList<Member>());
+        this(id, ownerJid, type, null, Collections.<Member>emptyList());
+    }
+
+    /** A new group extension with type 'set'. */
+    public GroupExtension(String id, String ownerJid, Type type, String subject) {
+        this(id, ownerJid, type, subject, Collections.<Member>emptyList());
     }
 
     /** A new group extension with type 'create', 'set' or 'result'. */
@@ -213,7 +219,7 @@ public class GroupExtension implements ExtensionElement {
     }
 
     public static GroupExtension addSetSubject(Stanza message, String groupId, String groupOwner, String subject) {
-        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject, null);
+        GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject);
         message.addExtension(ext);
         return ext;
     }

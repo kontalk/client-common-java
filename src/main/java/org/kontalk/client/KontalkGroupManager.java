@@ -88,7 +88,7 @@ public class KontalkGroupManager extends Manager {
         }
 
         public void create(String subject, String[] members, Stanza message) {
-            mSubject = subject;
+            mSubject = subject != null ? subject : "";
             mMembers = members;
             GroupExtension.addCreateGroup(message, mGroupId, mGroupOwner, mSubject, mMembers);
         }
@@ -97,16 +97,13 @@ public class KontalkGroupManager extends Manager {
             GroupExtension.addLeaveGroup(message, mGroupId, mGroupOwner);
         }
 
-        // TODO public void addMembers(String subject, String[] currentMembers, String[] newMembers) {
-        // TODO public void removeMembers(String subject, String[] currentMembers, String[] removedMembers) {
-
         public void setSubject(String subject, Stanza message) {
-            mSubject = subject;
+            mSubject = subject != null ? subject : "";
             GroupExtension.addSetSubject(message, mGroupId, mGroupOwner, mSubject);
         }
 
         public void addRemoveMembers(String subject, String[] members, String[] added, String[] removed, Stanza message) {
-            mSubject = subject;
+            mSubject = subject != null ? subject : "";
             mMembers = members;
             GroupExtension.addEditMembers(message, mGroupId, mGroupOwner, mSubject,
                 mMembers, added, removed);
