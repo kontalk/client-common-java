@@ -13,7 +13,7 @@ repositories {
 }
 
 ext {
-    smackVersion = '4.1.7'
+    smackVersion = '4.1.8'
 }
 
 checkstyle {
