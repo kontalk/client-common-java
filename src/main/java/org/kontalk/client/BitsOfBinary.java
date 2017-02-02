@@ -26,6 +26,7 @@ import java.io.IOException;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
+import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -45,14 +46,14 @@ public class BitsOfBinary implements ExtensionElement {
     /** Cache of Base64-encoded data. */
     private String mCache;
 
-    public BitsOfBinary(String mime, File path) {
-        mMime = mime;
-        mFile = path;
-    }
-
     public BitsOfBinary(String mime, String contents) {
         this(mime, (File) null);
         mCache = contents;
+    }
+
+    public BitsOfBinary(String mime, File path) {
+        mMime = mime;
+        mFile = path;
     }
 
     @Override
@@ -86,7 +87,7 @@ public class BitsOfBinary implements ExtensionElement {
     }
 
     private void updateContents() {
-        if (mCache == null) {
+        if (mCache == null && mFile != null) {
             FileInputStream source = null;
             try {
                 source = new FileInputStream(mFile);
@@ -103,7 +104,11 @@ public class BitsOfBinary implements ExtensionElement {
                 mCache = null;
             }
             finally {
-                try { source.close(); } catch (Exception e) {}
+                try {
+                    source.close();
+                }
+                catch (Exception ignored) {
+                }
             }
         }
     }
@@ -117,17 +122,16 @@ public class BitsOfBinary implements ExtensionElement {
         updateContents();
         if (mCache == null) return null;
 
-        return new StringBuilder("<")
-            .append(ELEMENT_NAME)
-            .append(" xmlns='")
-            .append(NAMESPACE)
-            .append("' type='")
-            .append(mMime)
-            .append("'>")
+        XmlStringBuilder xml = new XmlStringBuilder()
+            .prelude(ELEMENT_NAME, NAMESPACE);
+
+        if (mMime != null) {
+            xml.attribute("type", mMime);
+        }
+
+        return xml.rightAngleBracket()
             .append(mCache)
-            .append("</")
-            .append(ELEMENT_NAME)
-            .append('>')
+            .closeElement(ELEMENT_NAME)
             .toString();
     }
 
