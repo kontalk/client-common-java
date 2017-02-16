@@ -16,6 +16,10 @@ ext {
     smackVersion = '4.1.9'
 }
 
+tasks.withType(Checkstyle) {
+    exclude '**/org/jivesoftware/**'
+}
+
 checkstyle {
     configProperties.baseDir = projectDir.absolutePath
 }
