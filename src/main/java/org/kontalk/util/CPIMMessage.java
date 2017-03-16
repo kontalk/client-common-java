@@ -137,7 +137,7 @@ public class CPIMMessage {
         // first pass: CPIM content type
         CPIMParser.CPIMHeader h;
         boolean typeOk = false;
-        while ((h = p.nextHeader()) != null || !typeOk) {
+        while ((h = p.nextHeader()) != null && !typeOk) {
             if ("Content-type".equalsIgnoreCase(h.name) && TYPE.equalsIgnoreCase(h.value))
                 typeOk = true;
         }
