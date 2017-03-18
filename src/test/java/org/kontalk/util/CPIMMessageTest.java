@@ -42,7 +42,7 @@ public class CPIMMessageTest {
         "\n" +
         "From: alice@example.com\n" +
         "To: alice@example.com; bob@example.com\n" +
-        "DateTime: 2014-08-24T20:35:05+00:00\n" +
+        "DateTime: 2014-08-24T20:35:05.000+00:00\n" +
         "\n" +
         "Content-type: text/plain; charset=utf-8\n" +
         "\n" +
