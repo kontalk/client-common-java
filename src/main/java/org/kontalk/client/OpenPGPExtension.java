@@ -155,8 +155,7 @@ public class OpenPGPExtension implements ExtensionElement {
                     .closeElement(ELEMENT_NAME).toString();
         }
 
-        public static SignCryptElement parse(String decryptedPayload)
-                throws XmlPullParserException, IOException, SmackException, ParseException {
+        public static SignCryptElement parse(String decryptedPayload) throws Exception {
 
             List<String> jids = new ArrayList<>();
             Date date = null;

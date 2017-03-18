@@ -91,8 +91,7 @@ public class CPIMMessage {
 
     public String toString() {
         if (mBuf == null) {
-            String date = XmppDateTime.DateFormatType
-                .XEP_0082_DATETIME_PROFILE.format(mDate);
+            String date = XmppDateTime.formatXEP0082Date(mDate);
 
             StringBuilder to = new StringBuilder();
             for(String item : mTo){
@@ -180,8 +179,7 @@ public class CPIMMessage {
         Date parsedDate = null;
         try {
             if (date != null) {
-                parsedDate = XmppDateTime.DateFormatType
-                    .XEP_0082_DATETIME_PROFILE.parse(date);
+                parsedDate = XmppDateTime.parseXEP0082Date(date);
             }
         }
         catch (ParseException ignored) {

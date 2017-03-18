@@ -18,10 +18,8 @@
 
 package org.kontalk.util;
 
-import java.io.IOException;
 import java.io.StringReader;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.xmlpull.v1.XmlPullParser;
@@ -56,8 +54,7 @@ public class XMPPParserUtils {
     }
 
     /** Parses a &lt;xmpp&gt;-wrapped message stanza. */
-    public static Message parseMessageStanza(String data)
-            throws XmlPullParserException, IOException, SmackException {
+    public static Message parseMessageStanza(String data) throws Exception {
 
         XmlPullParser parser = getPullParser(data);
         boolean done = false, in_xmpp = false;

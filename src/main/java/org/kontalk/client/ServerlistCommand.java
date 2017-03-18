@@ -18,11 +18,9 @@
 
 package org.kontalk.client;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.XMPPError;
 import org.jivesoftware.smack.provider.IQProvider;
@@ -31,7 +29,6 @@ import org.jivesoftware.smackx.commands.AdHocCommand;
 import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
 import org.jivesoftware.smackx.commands.provider.AdHocCommandDataProvider;
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
@@ -90,7 +87,7 @@ public class ServerlistCommand extends IQ {
          * </iq>
          */
         @Override
-        public ServerlistCommandData parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public ServerlistCommandData parse(XmlPullParser parser, int initialDepth) throws Exception {
             boolean done = false;
             ServerlistCommandData adHocCommandData = new ServerlistCommandData();
 
@@ -134,7 +131,7 @@ public class ServerlistCommand extends IQ {
                                 in_serverlist = true;
                             }
                         } else if (parser.getName().equals("error")) {
-                            XMPPError error = PacketParserUtils.parseError(parser);
+                            XMPPError error = PacketParserUtils.parseError(parser).build();
                             adHocCommandData.setError(error);
                         }
                     }

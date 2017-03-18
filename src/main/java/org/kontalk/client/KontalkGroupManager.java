@@ -32,6 +32,9 @@ import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.address.packet.MultipleAddresses;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.jxmpp.util.XmppStringUtils;
 
 
@@ -80,7 +83,7 @@ public class KontalkGroupManager extends Manager {
         }
 
         public boolean isOwned() {
-            return isOwned(mConnection.getUser());
+            return isOwned(mConnection.getUser().toString());
         }
 
         public boolean isOwned(String by) {
@@ -117,8 +120,15 @@ public class KontalkGroupManager extends Manager {
         public void addRouteExtension(String[] members, Stanza message) {
             mMembers = members;
             MultipleAddresses p = new MultipleAddresses();
-            for (String rcpt : mMembers)
-                p.addAddress(MultipleAddresses.Type.to, rcpt, null, null, false, null);
+            for (String rcpt : mMembers) {
+                Jid jid;
+                try {
+                    jid = JidCreate.bareFrom(rcpt);
+                } catch (XmppStringprepException e) {
+                    throw new RuntimeException("Invalid receiver address: "+rcpt);
+                }
+                p.addAddress(MultipleAddresses.Type.to, jid, null, null, false, null);
+            }
             message.addExtension(p);
         }
 
@@ -130,7 +140,7 @@ public class KontalkGroupManager extends Manager {
             GroupExtension group = GroupExtension.from(packet);
             // group modification commands are allowed only by the owner
             return group != null && group.getJID().equalsIgnoreCase(getJID()) &&
-                !(!isOwned(packet.getFrom()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
+                !(!isOwned(packet.getFrom().toString()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
         }
 
         /** Checks whether the given group JID is owned by the given JID. */
