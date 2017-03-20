@@ -22,8 +22,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.jxmpp.util.XmppDateTime;
 
@@ -41,6 +44,36 @@ import org.jxmpp.util.XmppDateTime;
  * @author Daniele Ricci
  */
 public class CPIMMessage {
+
+    private static final DateTimeNoMillisFormatter dateTimeNoMillisFormatter = new DateTimeNoMillisFormatter();
+
+    private static class DateTimeNoMillisFormatter {
+
+        private final String FORMAT_STRING = "yyyy-MM-dd'T'HH:mm:ssZ";
+        private final DateFormat FORMATTER;
+
+        private DateTimeNoMillisFormatter() {
+            FORMATTER = new SimpleDateFormat(FORMAT_STRING);
+            FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
+        }
+
+        private String format(Date date) {
+            String res;
+            synchronized (FORMATTER) {
+                res = FORMATTER.format(date);
+            }
+            res = convertRfc822TimezoneToXep82(res);
+            return res;
+        }
+
+        private static String convertRfc822TimezoneToXep82(String dateString) {
+            int length = dateString.length();
+            String res = dateString.substring(0, length - 2);
+            res += ':';
+            res += dateString.substring(length - 2, length);
+            return res;
+        }
+    }
 
     /** Charset used for byte encoding. */
     public static final String CHARSET = "utf-8";
@@ -91,8 +124,8 @@ public class CPIMMessage {
 
     public String toString() {
         if (mBuf == null) {
-            // FIXME this might break things
-            String date = XmppDateTime.formatXEP0082Date(mDate);
+            // format to XEP-0082 date without millieconds for clients using Smack < 4.2.0
+            String date = dateTimeNoMillisFormatter.format(mDate);
 
             StringBuilder to = new StringBuilder();
             for(String item : mTo){
@@ -180,7 +213,6 @@ public class CPIMMessage {
         Date parsedDate = null;
         try {
             if (date != null) {
-                // FIXME this might break things
                 parsedDate = XmppDateTime.parseXEP0082Date(date);
             }
         }
