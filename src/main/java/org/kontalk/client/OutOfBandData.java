@@ -18,13 +18,13 @@
 
 package org.kontalk.client;
 
+import java.io.IOException;
+
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
 
 
 /**
@@ -38,16 +38,20 @@ public class OutOfBandData implements ExtensionElement {
 
     private final String mUrl;
     private final String mMime;
+    private int mWidth;
+    private int mHeight;
     private final long mLength;
     private final boolean mEncrypted;
 
     public OutOfBandData(String url) {
-        this(url, null, -1, false);
+        this(url, null, 0, 0, -1, false);
     }
 
-    public OutOfBandData(String url, String mime, long length, boolean encrypted) {
+    public OutOfBandData(String url, String mime, int width, int height, long length, boolean encrypted) {
         mUrl = url;
         mMime = mime;
+        mWidth = width;
+        mHeight = height;
         mLength = length;
         mEncrypted = encrypted;
     }
@@ -68,6 +72,14 @@ public class OutOfBandData implements ExtensionElement {
 
     public String getMime() {
         return mMime;
+    }
+
+    public int getWidth() {
+        return mWidth;
+    }
+
+    public int getHeight() {
+        return mHeight;
     }
 
     public long getLength() {
@@ -97,6 +109,8 @@ public class OutOfBandData implements ExtensionElement {
             xml.append(" encrypted='true'");
 
         xml
+            .append(String.format(" width='%d'", mWidth))
+            .append(String.format(" height='%d'", mHeight))
             .append(">")
             // TODO should we escape this?
             .append(mUrl)
@@ -109,19 +123,32 @@ public class OutOfBandData implements ExtensionElement {
         @Override
         public OutOfBandData parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
             String url = null, mime = null;
+            int width = 0, height = 0;
             long length = -1;
             boolean encrypted = false;
             boolean in_url = false, done = false;
 
-            while (!done)
-            {
+            while (!done) {
                 int eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG)
-                {
+                if (eventType == XmlPullParser.START_TAG) {
                     if ("url".equals(parser.getName())) {
                         in_url = true;
                         mime = parser.getAttributeValue(null, "type");
+                        String _width = parser.getAttributeValue(null, "width");
+                        try {
+                            width = Integer.parseInt(_width);
+                        }
+                        catch (Exception e) {
+                            // ignored
+                        }
+                        String _height = parser.getAttributeValue(null, "height");
+                        try {
+                            height = Integer.parseInt(_height);
+                        }
+                        catch (Exception e) {
+                            // ignored
+                        }
                         String _length = parser.getAttributeValue(null, "length");
                         try {
                             length = Long.parseLong(_length);
@@ -134,8 +161,7 @@ public class OutOfBandData implements ExtensionElement {
                     }
 
                 }
-                else if (eventType == XmlPullParser.END_TAG)
-                {
+                else if (eventType == XmlPullParser.END_TAG) {
                     if ("url".equals(parser.getName())) {
                         done = true;
                     }
@@ -146,7 +172,7 @@ public class OutOfBandData implements ExtensionElement {
             }
 
             if (url != null)
-                return new OutOfBandData(url, mime, length, encrypted);
+                return new OutOfBandData(url, mime, width, height, length, encrypted);
             else
                 return null;
         }
