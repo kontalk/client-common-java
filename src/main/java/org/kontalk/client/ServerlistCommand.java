@@ -134,7 +134,13 @@ public class ServerlistCommand extends IQ {
                                 in_serverlist = true;
                             }
                         } else if (parser.getName().equals("error")) {
-                            XMPPError error = PacketParserUtils.parseError(parser);
+                            XMPPError error;
+                            try {
+                                error = PacketParserUtils.parseError(parser).build();
+                            }
+                            catch (Exception e) {
+                                throw new XmlPullParserException("error parsing xml", parser, e);
+                            }
                             adHocCommandData.setError(error);
                         }
                     }
