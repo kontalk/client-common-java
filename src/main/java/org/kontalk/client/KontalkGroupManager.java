@@ -32,6 +32,7 @@ import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smackx.address.packet.MultipleAddresses;
+import org.jxmpp.jid.EntityBareJid;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.stringprep.XmppStringprepException;
@@ -46,7 +47,7 @@ public class KontalkGroupManager extends Manager {
 
     private static final Logger LOGGER = Logger.getLogger(KontalkGroupManager.class.getName());
 
-    private static Map<XMPPConnection, KontalkGroupManager> INSTANCES = new WeakHashMap<XMPPConnection, KontalkGroupManager>();
+    private static Map<XMPPConnection, KontalkGroupManager> INSTANCES = new WeakHashMap<>();
 
     static {
         XMPPConnectionRegistry.addConnectionCreationListener(new ConnectionCreationListener() {
@@ -72,63 +73,56 @@ public class KontalkGroupManager extends Manager {
         private final XMPPConnection mConnection;
 
         private final String mGroupId;
-        private final String mGroupOwner;
+        private final EntityBareJid mGroupOwner;
         private String mSubject;
         private String[] mMembers;
 
-        public KontalkGroup(XMPPConnection connection, String groupId, String groupOwner) {
+        public KontalkGroup(XMPPConnection connection, String groupId, String groupOwner) throws XmppStringprepException {
             mConnection = connection;
             mGroupId = groupId;
-            mGroupOwner = groupOwner;
+            mGroupOwner = JidCreate.entityBareFrom(groupOwner);
         }
 
         public boolean isOwned() {
             return isOwned(mConnection.getUser().toString());
         }
 
-        public boolean isOwned(String by) {
-            return XmppStringUtils.parseBareJid(by).equalsIgnoreCase(mGroupOwner);
+        public boolean isOwned(Jid by) {
+            return by.isParentOf(mGroupOwner);
         }
 
         public void create(String subject, String[] members, Stanza message) {
             mSubject = subject != null ? subject : "";
             mMembers = members;
-            GroupExtension.addCreateGroup(message, mGroupId, mGroupOwner, mSubject, mMembers);
+            GroupExtension.addCreateGroup(message, mGroupId, mGroupOwner.toString(), mSubject, mMembers);
         }
 
         public void leave(Stanza message) {
-            GroupExtension.addLeaveGroup(message, mGroupId, mGroupOwner);
+            GroupExtension.addLeaveGroup(message, mGroupId, mGroupOwner.toString());
         }
 
         public void setSubject(String subject, Stanza message) {
             mSubject = subject != null ? subject : "";
-            GroupExtension.addSetSubject(message, mGroupId, mGroupOwner, mSubject);
+            GroupExtension.addSetSubject(message, mGroupId, mGroupOwner.toString(), mSubject);
         }
 
         public void addRemoveMembers(String subject, String[] members, String[] added, String[] removed, Stanza message) {
             mSubject = subject != null ? subject : "";
             mMembers = members;
-            GroupExtension.addEditMembers(message, mGroupId, mGroupOwner, mSubject,
+            GroupExtension.addEditMembers(message, mGroupId, mGroupOwner.toString(), mSubject,
                 mMembers, added, removed);
         }
 
         public void groupInfo(Stanza message) {
-            GroupExtension.addGroupInfo(message, mGroupId, mGroupOwner);
+            GroupExtension.addGroupInfo(message, mGroupId, mGroupOwner.toString());
         }
 
         /** Process an outgoing message for routing. */
-        public void addRouteExtension(String[] members, Stanza message) {
+        public void addRouteExtension(String[] members, Stanza message) throws XmppStringprepException {
             mMembers = members;
             MultipleAddresses p = new MultipleAddresses();
-            for (String rcpt : mMembers) {
-                Jid jid;
-                try {
-                    jid = JidCreate.bareFrom(rcpt);
-                } catch (XmppStringprepException e) {
-                    throw new RuntimeException("Invalid receiver address: "+rcpt);
-                }
-                p.addAddress(MultipleAddresses.Type.to, jid, null, null, false, null);
-            }
+            for (String rcpt : mMembers)
+                p.addAddress(MultipleAddresses.Type.to, JidCreate.from(rcpt), null, null, false, null);
             message.addExtension(p);
         }
 
@@ -156,7 +150,7 @@ public class KontalkGroupManager extends Manager {
 
     private Map<String, WeakReference<KontalkGroup>> mGroups = new HashMap<>();
 
-    public synchronized KontalkGroup getGroup(Stanza packet) {
+    public synchronized KontalkGroup getGroup(Stanza packet) throws XmppStringprepException {
         if (packet instanceof Message) {
             ExtensionElement ext = packet.getExtension(GroupExtension.ELEMENT_NAME, GroupExtension.NAMESPACE);
             if (ext instanceof GroupExtension) {
@@ -167,13 +161,13 @@ public class KontalkGroupManager extends Manager {
         return null;
     }
 
-    public synchronized KontalkGroup getGroup(String groupJid) {
+    public synchronized KontalkGroup getGroup(String groupJid) throws XmppStringprepException {
         String id = XmppStringUtils.parseLocalpart(groupJid);
         String owner = XmppStringUtils.parseDomain(groupJid);
         return getGroup(id, owner);
     }
 
-    public synchronized KontalkGroup getGroup(String groupId, String groupOwner) {
+    public synchronized KontalkGroup getGroup(String groupId, String groupOwner) throws XmppStringprepException {
         String key = XmppStringUtils.completeJidFrom(groupId, groupOwner);
         WeakReference<KontalkGroup> groupRef = mGroups.get(key);
 
