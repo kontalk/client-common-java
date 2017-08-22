@@ -84,7 +84,7 @@ public class KontalkGroupManager extends Manager {
         }
 
         public boolean isOwned() {
-            return isOwned(mConnection.getUser().toString());
+            return isOwned(mConnection.getUser());
         }
 
         public boolean isOwned(Jid by) {
@@ -134,7 +134,7 @@ public class KontalkGroupManager extends Manager {
             GroupExtension group = GroupExtension.from(packet);
             // group modification commands are allowed only by the owner
             return group != null && group.getJID().equalsIgnoreCase(getJID()) &&
-                !(!isOwned(packet.getFrom().toString()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
+                !(!isOwned(packet.getFrom()) && (group.getType() == GroupExtension.Type.CREATE || group.getType() == GroupExtension.Type.SET));
         }
 
         /** Checks whether the given group JID is owned by the given JID. */

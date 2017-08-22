@@ -29,6 +29,7 @@ import org.jivesoftware.smackx.commands.AdHocCommand;
 import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
 import org.jivesoftware.smackx.commands.provider.AdHocCommandDataProvider;
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 
 /**
