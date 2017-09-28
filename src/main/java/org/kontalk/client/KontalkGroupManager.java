@@ -88,7 +88,7 @@ public class KontalkGroupManager extends Manager {
         }
 
         public boolean isOwned(Jid by) {
-            return by.isParentOf(mGroupOwner);
+            return mGroupOwner.isParentOf(by);
         }
 
         public void create(String subject, String[] members, Stanza message) {
