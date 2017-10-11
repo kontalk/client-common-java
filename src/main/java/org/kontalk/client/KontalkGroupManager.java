@@ -171,12 +171,15 @@ public class KontalkGroupManager extends Manager {
         String key = XmppStringUtils.completeJidFrom(groupId, groupOwner);
         WeakReference<KontalkGroup> groupRef = mGroups.get(key);
 
-        if (groupRef == null || groupRef.get() == null) {
-            groupRef = new WeakReference<>(new KontalkGroup(connection(), groupId, groupOwner));
+        KontalkGroup group = (groupRef != null) ? groupRef.get() : null;
+
+        if (group == null) {
+            group = new KontalkGroup(connection(), groupId, groupOwner);
+            groupRef = new WeakReference<>(group);
             mGroups.put(key, groupRef);
         }
 
-        return groupRef.get();
+        return group;
     }
 
 }
