@@ -39,13 +39,15 @@ public class Account implements ExtensionElement {
 
     private String mPrivateKeyToken;
     private byte[] mPrivateKeyData;
+    private byte[] mPublicKeyData;
 
     public Account() {
     }
 
-    public Account(String keyData) {
+    public Account(String privateKeyData, String publicKeyData) {
         this();
-        mPrivateKeyData = Base64.decode(keyData);
+        mPrivateKeyData = Base64.decode(privateKeyData);
+        mPublicKeyData = Base64.decode(publicKeyData);
     }
 
     @Override
@@ -81,20 +83,21 @@ public class Account implements ExtensionElement {
         mPrivateKeyToken = privateKeyToken;
     }
 
-    public String getPrivateKeyToken() {
-        return mPrivateKeyToken;
-    }
-
     public byte[] getPrivateKeyData() {
         return mPrivateKeyData;
+    }
+
+    public byte[] getPublicKeyData() {
+        return mPublicKeyData;
     }
 
     public static final class Provider extends ExtensionElementProvider<Account> {
 
         @Override
         public Account parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
-            boolean done = false, in_privatekey = false, in_keydata = false;
-            String keyData = null;
+            boolean done = false, in_privatekey = false;
+            boolean in_priv_keydata = false, in_pub_keydata = false;
+            String privKeyData = null, pubKeyData = null;
 
             while (!done) {
                 int eventType = parser.next();
@@ -102,8 +105,11 @@ public class Account implements ExtensionElement {
                 if (eventType == XmlPullParser.START_TAG) {
                     String name = parser.getName();
                     if (in_privatekey) {
-                        if ("keydata".equals(name)) {
-                            in_keydata = true;
+                        if ("private".equals(name)) {
+                            in_priv_keydata = true;
+                        }
+                        else if ("public".equals(name)) {
+                            in_pub_keydata = true;
                         }
                     }
                     else if ("privatekey".equals(name)) {
@@ -118,18 +124,26 @@ public class Account implements ExtensionElement {
                     else if ("privatekey".equals(name)) {
                         in_privatekey = false;
                     }
-                    else if ("keydata".equals(name)) {
-                        in_keydata = false;
+                    else if ("private".equals(name)) {
+                        in_priv_keydata = false;
+                    }
+                    else if ("public".equals(name)) {
+                        in_pub_keydata = false;
                     }
                 }
                 else if (eventType == XmlPullParser.TEXT) {
-                    if (in_privatekey && in_keydata) {
-                        keyData = parser.getText();
+                    if (in_privatekey) {
+                        if (in_priv_keydata) {
+                            privKeyData = parser.getText();
+                        }
+                        else if (in_pub_keydata) {
+                            pubKeyData = parser.getText();
+                        }
                     }
                 }
             }
 
-            return new Account(keyData);
+            return new Account(privKeyData, pubKeyData);
         }
 
     }

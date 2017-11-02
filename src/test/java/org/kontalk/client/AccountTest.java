@@ -57,12 +57,14 @@ public class AccountTest {
             "<query xmlns=\"jabber:iq:register\">" +
             "<account xmlns=\"http://kontalk.org/protocol/register#account\">" +
             "<privatekey>" +
-            "<keydata>Y2lhbw==</keydata>" +
+            "<private>Y2lhbw==</private>" +
+            "<public>emlv</public>" +
             "</privatekey>" +
             "</account>" +
             "</query>" +
             "</iq>";
-        final String TEST_KEYDATA = "ciao";
+        final String TEST_PRIV_DATA = "ciao";
+        final String TEST_PUB_DATA = "zio";
 
         ProviderManager.addExtensionProvider(Account.ELEMENT_NAME, Account.NAMESPACE, new Account.Provider());
 
@@ -70,7 +72,8 @@ public class AccountTest {
         parser.next();
         Registration iq = (Registration) PacketParserUtils.parseIQ(parser);
         Account account = iq.getExtension(Account.ELEMENT_NAME, Account.NAMESPACE);
-        assertArrayEquals(TEST_KEYDATA.getBytes(), account.getPrivateKeyData());
+        assertArrayEquals(TEST_PRIV_DATA.getBytes(), account.getPrivateKeyData());
+        assertArrayEquals(TEST_PUB_DATA.getBytes(), account.getPublicKeyData());
     }
 
 }
