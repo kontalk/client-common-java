@@ -143,7 +143,8 @@ public class Account implements ExtensionElement {
                 }
             }
 
-            return new Account(privKeyData, pubKeyData);
+            return (privKeyData != null && pubKeyData != null) ?
+                new Account(privKeyData, pubKeyData) : null;
         }
 
     }
