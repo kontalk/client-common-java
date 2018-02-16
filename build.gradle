@@ -13,7 +13,7 @@ repositories {
 }
 
 ext {
-    smackVersion = '4.2.2'
+    smackVersion = '4.2.3'
 }
 
 tasks.withType(Checkstyle) {
