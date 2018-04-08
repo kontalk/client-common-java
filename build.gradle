@@ -1,6 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'checkstyle'
 apply plugin: 'eclipse'
+apply plugin: 'jacoco'
 
 buildscript {
     repositories {
@@ -35,3 +36,13 @@ dependencies {
 	testImplementation "org.igniterealtime.smack:smack-java7:$smackVersion"
     testImplementation 'junit:junit:4.+'
 }
+
+
+jacocoTestReport {
+    reports {
+        xml.enabled true
+        html.enabled false
+    }
+}
+
+check.dependsOn jacocoTestReport
