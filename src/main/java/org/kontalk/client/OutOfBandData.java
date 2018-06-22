@@ -79,7 +79,7 @@ public class OutOfBandData implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public StringBuilder toXML(String enclosingNamespace) {
         /*
   <x xmlns='jabber:x:oob'>
     <url type='image/png' length='2034782'>http://prime.kontalk.net/media/filename_or_hash</url>
@@ -101,7 +101,7 @@ public class OutOfBandData implements ExtensionElement {
             // TODO should we escape this?
             .append(mUrl)
             .append(String.format("</url></%s>", ELEMENT_NAME));
-        return xml.toString();
+        return xml;
     }
 
     public static final class Provider extends ExtensionElementProvider<OutOfBandData> {

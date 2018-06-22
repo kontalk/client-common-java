@@ -64,7 +64,7 @@ public class E2EEncryption implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public StringBuilder toXML(String enclosingNamespace) {
         if (mEncoded == null)
             mEncoded = Base64.encodeToString(mData);
 
@@ -77,8 +77,7 @@ public class E2EEncryption implements ExtensionElement {
             .append(mEncoded)
             .append("</")
             .append(ELEMENT_NAME)
-            .append('>')
-            .toString();
+            .append('>');
     }
 
     public static class Provider extends ExtensionElementProvider<E2EEncryption> {

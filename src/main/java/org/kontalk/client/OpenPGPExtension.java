@@ -68,13 +68,13 @@ public class OpenPGPExtension implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         return new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
                 .rightAngleBracket()
                 .escape(mBase64Data)
-                .closeElement(ELEMENT_NAME).toString();
+                .closeElement(ELEMENT_NAME);
     }
 
     public static class Provider extends ExtensionElementProvider<OpenPGPExtension> {
@@ -136,9 +136,9 @@ public class OpenPGPExtension implements ExtensionElement {
         }
 
         @Override
-        public CharSequence toXML() {
-            XmlStringBuilder buf = new XmlStringBuilder()
-                    .halfOpenElement(ELEMENT_NAME).xmlnsAttribute(NAMESPACE).rightAngleBracket();
+        public XmlStringBuilder toXML(String enclosingNamespace) {
+            XmlStringBuilder buf = new XmlStringBuilder(this);
+            buf.rightAngleBracket();
             for (String jid : mJIDs)
                 buf.halfOpenElement("to").attribute("jid", jid).closeEmptyElement();
             buf.halfOpenElement("time")
@@ -150,9 +150,10 @@ public class OpenPGPExtension implements ExtensionElement {
                         .closeElement("rpad");
             buf.openElement("payload");
             for (NamedElement payloadElements : mPayloadExtensions)
-                buf.append(payloadElements.toXML());
-            return buf.closeElement("payload")
-                    .closeElement(ELEMENT_NAME).toString();
+                buf.append(payloadElements.toXML(NAMESPACE));
+            buf.closeElement("payload")
+                    .closeElement(ELEMENT_NAME);
+            return buf;
         }
 
         public static SignCryptElement parse(String decryptedPayload) throws Exception {
@@ -248,13 +249,13 @@ public class OpenPGPExtension implements ExtensionElement {
         }
 
         @Override
-        public CharSequence toXML() {
+        public XmlStringBuilder toXML(String enclosingNamespace) {
             return new XmlStringBuilder()
                     .halfOpenElement(ELEMENT_NAME)
                     .xmlnsAttribute(NAMESPACE)
                     .rightAngleBracket()
                     .escape(mText)
-                    .closeElement(ELEMENT_NAME).toString();
+                    .closeElement(ELEMENT_NAME);
         }
 
         public static class Provider extends ExtensionElementProvider<BodyElement> {

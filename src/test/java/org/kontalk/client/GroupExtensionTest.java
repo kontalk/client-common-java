@@ -51,7 +51,7 @@ public class GroupExtensionTest {
     public void testSimple() throws Exception {
         GroupExtension ext = new GroupExtension("mad-group", "david@localhost");
 
-        GroupExtension parsed = parse(ext.toXML());
+        GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());
@@ -63,7 +63,7 @@ public class GroupExtensionTest {
         ext.addMember("alpha@localhost");
         ext.addMember("beta@localhost");
 
-        GroupExtension parsed = parse(ext.toXML());
+        GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());
@@ -89,7 +89,7 @@ public class GroupExtensionTest {
         GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.SET);
         ext.removeMember("alpha@localhost");
 
-        GroupExtension parsed = parse(ext.toXML());
+        GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());
@@ -108,7 +108,7 @@ public class GroupExtensionTest {
     public void testPart() throws Exception {
         GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.PART);
 
-        GroupExtension parsed = parse(ext.toXML());
+        GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
         assertEquals("david@localhost", parsed.getOwner());

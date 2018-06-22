@@ -63,14 +63,14 @@ public class AvatarDataExtension implements ExtensionElement {
     }
 
     @Override
-    public CharSequence toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         XmlStringBuilder buf = new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
                 .openElement("data")
                 .append(mData)
                 .closeElement("data");
-        return buf.toString();
+        return buf;
     }
 
     public static final class Provider extends ExtensionElementProvider<AvatarDataExtension> {

@@ -60,7 +60,7 @@ public class PublicKeyPresenceTest {
             .append(FINGERPRINT)
             .closeElement("print")
             .closeElement(PublicKeyPresence.ELEMENT_NAME);
-        assertEquals(xml.toString(), p.toXML());
+        assertEquals(xml.toString(), p.toXML(null).toString());
         assertArrayEquals(KEYDATA.getBytes(), p.getKey());
         assertEquals(FINGERPRINT, p.getFingerprint());
 
@@ -73,7 +73,7 @@ public class PublicKeyPresenceTest {
             .append(KEYDATA_ENCODED)
             .closeElement("key")
             .closeElement(PublicKeyPresence.ELEMENT_NAME);
-        assertEquals(xml.toString(), p.toXML());
+        assertEquals(xml.toString(), p.toXML(null).toString());
         assertArrayEquals(KEYDATA.getBytes(), p.getKey());
         assertNull(p.getFingerprint());
 
@@ -86,7 +86,7 @@ public class PublicKeyPresenceTest {
             .append(FINGERPRINT)
             .closeElement("print")
             .closeElement(PublicKeyPresence.ELEMENT_NAME);
-        assertEquals(xml.toString(), p.toXML());
+        assertEquals(xml.toString(), p.toXML(null).toString());
         assertNull(p.getKey());
         assertEquals(FINGERPRINT, p.getFingerprint());
     }

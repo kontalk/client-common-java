@@ -74,7 +74,7 @@ public class SignCryptElementTest {
     @Test
     public void testToXML() throws Exception {
         SignCryptElement element = new SignCryptElement(JIDS, TIMESTAMP, 0, PAYLOAD_EXTENSIONS);
-        String xml = element.toXML().toString();
+        String xml = element.toXML(null).toString();
 
         assertEquals(XML, xml);
     }
@@ -103,7 +103,7 @@ public class SignCryptElementTest {
     public void testParseToXML() throws Exception {
         SignCryptElement signCryptElement = new SignCryptElement(JIDS, TIMESTAMP, 42, PAYLOAD_EXTENSIONS);
 
-        SignCryptElement parsed = SignCryptElement.parse(signCryptElement.toXML().toString());
+        SignCryptElement parsed = SignCryptElement.parse(signCryptElement.toXML(null).toString());
         assertEquals(JIDS, parsed.getJIDs());
         assertEquals(TIMESTAMP, parsed.getTimeStamp());
         assertEquals(PAYLOAD_EXTENSIONS.size(), parsed.getPayload().size());

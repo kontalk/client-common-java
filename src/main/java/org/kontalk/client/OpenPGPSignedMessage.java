@@ -59,7 +59,7 @@ public class OpenPGPSignedMessage implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public StringBuilder toXML(String enclosingNamepsace) {
         return new StringBuilder()
             .append('<')
             .append(ELEMENT_NAME)
@@ -69,8 +69,7 @@ public class OpenPGPSignedMessage implements ExtensionElement {
             .append(Base64.encodeToString(mData))
             .append("]]></")
             .append(ELEMENT_NAME)
-            .append('>')
-            .toString();
+            .append('>');
     }
 
     public static final class Provider extends ExtensionElementProvider<OpenPGPSignedMessage> {

@@ -38,7 +38,7 @@ public class BitsOfBinaryTest {
             .append(TEST_DATA)
             .closeElement(BitsOfBinary.ELEMENT_NAME)
             .toString();
-        assertEquals(expected, actual.toXML());
+        assertEquals(expected, actual.toXML(null).toString());
 
         final BitsOfBinary actualWithType = new BitsOfBinary(TEST_MIME, TEST_DATA);
         final String expectedWithType = new XmlStringBuilder()
@@ -48,7 +48,7 @@ public class BitsOfBinaryTest {
             .append(TEST_DATA)
             .closeElement(BitsOfBinary.ELEMENT_NAME)
             .toString();
-        assertEquals(expectedWithType, actualWithType.toXML());
+        assertEquals(expectedWithType, actualWithType.toXML(null).toString());
     }
 
 }

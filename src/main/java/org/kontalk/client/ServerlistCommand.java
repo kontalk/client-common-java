@@ -22,7 +22,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.XMPPError;
+import org.jivesoftware.smack.packet.StanzaError;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smackx.commands.AdHocCommand;
@@ -132,9 +132,9 @@ public class ServerlistCommand extends IQ {
                                 in_serverlist = true;
                             }
                         } else if (parser.getName().equals("error")) {
-                            XMPPError error;
+                            StanzaError.Builder error;
                             try {
-                                error = PacketParserUtils.parseError(parser).build();
+                                error = PacketParserUtils.parseError(parser);
                             }
                             catch (Exception e) {
                                 throw new XmlPullParserException("error parsing xml", parser, e);
