@@ -22,7 +22,6 @@ import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-import java.util.logging.Logger;
 
 import org.jivesoftware.smack.ConnectionCreationListener;
 import org.jivesoftware.smack.Manager;
@@ -44,8 +43,6 @@ import org.jxmpp.util.XmppStringUtils;
  * @author Daniele Ricci
  */
 public class KontalkGroupManager extends Manager {
-
-    private static final Logger LOGGER = Logger.getLogger(KontalkGroupManager.class.getName());
 
     private static Map<XMPPConnection, KontalkGroupManager> INSTANCES = new WeakHashMap<>();
 
