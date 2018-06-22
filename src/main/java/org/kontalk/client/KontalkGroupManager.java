@@ -51,6 +51,7 @@ public class KontalkGroupManager extends Manager {
 
     static {
         XMPPConnectionRegistry.addConnectionCreationListener(new ConnectionCreationListener() {
+            @Override
             public void connectionCreated(XMPPConnection connection) {
                 getInstanceFor(connection);
             }

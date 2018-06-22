@@ -122,6 +122,7 @@ public class CPIMMessage {
         return mBody;
     }
 
+    @Override
     public String toString() {
         if (mBuf == null) {
             // format to XEP-0082 date without millieconds for clients using Smack < 4.2.0
@@ -233,6 +234,7 @@ public class CPIMMessage {
                 this.value = value;
             }
 
+            @Override
             public String toString() {
                 return this.name + "=" + this.value;
             }
