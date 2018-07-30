@@ -147,7 +147,7 @@ public class GroupExtension implements ExtensionElement {
     }
 
     @Override
-    public CharSequence toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         XmlStringBuilder buf = new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
@@ -174,7 +174,7 @@ public class GroupExtension implements ExtensionElement {
             buf.closeElement(ELEMENT_NAME);
         }
 
-        return buf.toString();
+        return buf;
     }
 
     public static GroupExtension addCreateGroup(Stanza message, String groupId, String groupOwner, String subject, String[] members) {

@@ -10,7 +10,7 @@ by all the clients.
 
 Build requirements:
 
-* [Smack](http://www.igniterealtime.org/projects/smack/) 4.1.0
+* [Smack](http://www.igniterealtime.org/projects/smack/)
 * [kXML](http://www.kxml.org/)
 
 

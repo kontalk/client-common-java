@@ -81,7 +81,7 @@ public class PublicKeyPresence implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         if (mEncodedKey == null && mKey != null)
             mEncodedKey = Base64.encodeToString(mKey);
 
@@ -102,8 +102,8 @@ public class PublicKeyPresence implements ExtensionElement {
                 .closeElement("print");
         }
 
-        return buf.closeElement(ELEMENT_NAME)
-            .toString();
+        buf.closeElement(ELEMENT_NAME);
+        return buf;
     }
 
     public static String getFingerprint(Presence p) {

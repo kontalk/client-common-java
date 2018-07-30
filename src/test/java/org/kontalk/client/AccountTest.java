@@ -48,7 +48,7 @@ public class AccountTest {
             .closeElement("privatekey")
             .closeElement(Account.ELEMENT_NAME)
             .toString();
-        assertEquals(expected, actual.toXML());
+        assertEquals(expected, actual.toXML(null).toString());
     }
 
     @Test

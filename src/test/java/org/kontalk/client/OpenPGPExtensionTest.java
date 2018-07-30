@@ -41,7 +41,7 @@ public class OpenPGPExtensionTest {
     @Test
     public void testToXML() throws Exception {
         OpenPGPExtension element = new OpenPGPExtension(BASE64_DATA);
-        String xml = element.toXML();
+        String xml = element.toXML(null).toString();
 
         assertEquals(XML, xml);
     }
@@ -58,7 +58,7 @@ public class OpenPGPExtensionTest {
     @Test
     public void testParseToXML() throws Exception {
         OpenPGPExtension element = new OpenPGPExtension(BASE64_DATA);
-        OpenPGPExtension parsed = parse(element.toXML());
+        OpenPGPExtension parsed = parse(element.toXML(null));
 
         assertEquals(element.getClass(), parsed.getClass());
         assertEquals("openpgp", parsed.getElementName());

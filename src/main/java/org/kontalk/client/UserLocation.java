@@ -92,7 +92,7 @@ public class UserLocation implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public StringBuilder toXML(String enclosingNamespace) {
 
         StringBuilder builder = new StringBuilder();
         builder.append("<")
@@ -121,7 +121,7 @@ public class UserLocation implements ExtensionElement {
             .append(ELEMENT_NAME)
             .append('>');
 
-        return builder.toString();
+        return builder;
     }
 
     public static final class Provider extends ExtensionElementProvider<UserLocation> {

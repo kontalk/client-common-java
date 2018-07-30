@@ -21,7 +21,6 @@ package org.kontalk.client;
 import java.util.Collections;
 
 import org.jivesoftware.smack.packet.Message;
-import org.junit.Before;
 import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
 
@@ -29,13 +28,6 @@ import static org.junit.Assert.*;
 
 
 public class KontalkGroupTest {
-
-    private GroupExtension.Provider provider;
-
-    @Before
-    public void setUp() {
-        provider = new GroupExtension.Provider();
-    }
 
     @Test
     public void testCheckRequest() throws Exception {

@@ -118,7 +118,7 @@ public class BitsOfBinary implements ExtensionElement {
      * @return the XML representation.
      */
     @Override
-    public String toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         updateContents();
         if (mCache == null) return null;
 
@@ -129,10 +129,10 @@ public class BitsOfBinary implements ExtensionElement {
             xml.attribute("type", mMime);
         }
 
-        return xml.rightAngleBracket()
+        xml.rightAngleBracket()
             .append(mCache)
-            .closeElement(ELEMENT_NAME)
-            .toString();
+            .closeElement(ELEMENT_NAME);
+        return xml;
     }
 
     /** Provider class for parsing {@link BitsOfBinary}. */

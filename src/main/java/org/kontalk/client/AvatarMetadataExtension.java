@@ -60,7 +60,7 @@ public class AvatarMetadataExtension implements ExtensionElement {
     }
 
     @Override
-    public String toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         XmlStringBuilder builder = new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
@@ -68,7 +68,8 @@ public class AvatarMetadataExtension implements ExtensionElement {
         for (Info info : mInfos) {
             builder.append(info.toXML());
         }
-        return builder.closeElement(ELEMENT_NAME).toString();
+        builder.closeElement(ELEMENT_NAME);
+        return builder;
     }
 
     /** A metadata info element. */

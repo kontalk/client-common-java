@@ -61,7 +61,7 @@ public class Account implements ExtensionElement {
     }
 
     @Override
-    public CharSequence toXML() {
+    public XmlStringBuilder toXML(String enclosingNamespace) {
         XmlStringBuilder xml = new XmlStringBuilder()
             .prelude(ELEMENT_NAME, NAMESPACE)
             .rightAngleBracket();
@@ -76,7 +76,7 @@ public class Account implements ExtensionElement {
 
         xml.closeElement(ELEMENT_NAME);
 
-        return xml.toString();
+        return xml;
     }
 
     public void setPrivateKeyToken(String privateKeyToken) {
