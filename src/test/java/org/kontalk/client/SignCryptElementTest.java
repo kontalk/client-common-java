@@ -27,11 +27,9 @@ import java.util.Date;
 import java.util.List;
 
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.StandardExtensionElement;
-import org.jivesoftware.smack.provider.ProviderManager;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kontalk.client.OpenPGPExtension.BodyElement;
 import org.kontalk.client.OpenPGPExtension.SignCryptElement;
 
 /**
@@ -43,7 +41,7 @@ public class SignCryptElementTest {
     private static final Date TIMESTAMP = createTimestamp();
     private static final ExtensionElement STANDARD_EXTENSION =
             new StandardExtensionElement("test_name", "test_namespace");
-    private static final BodyElement BODY_EXTENSION = new BodyElement("test_body");
+    private static final Message.Body BODY_EXTENSION = new Message.Body(null, "test_body");
     private static final List<ExtensionElement> PAYLOAD_EXTENSIONS = Arrays.asList(
             STANDARD_EXTENSION, BODY_EXTENSION);
     private static final String XML =
@@ -64,11 +62,6 @@ public class SignCryptElementTest {
             e.printStackTrace();
         }
         return null;
-    }
-
-    @BeforeClass
-    public static void setUpClass() {
-        ProviderManager.addExtensionProvider(BodyElement.ELEMENT_NAME, BodyElement.NAMESPACE, new BodyElement.Provider());
     }
 
     @Test
@@ -96,7 +89,7 @@ public class SignCryptElementTest {
         assertEquals(BODY_EXTENSION.getClass(), parsed.getPayload().get(1).getClass());
         assertEquals(BODY_EXTENSION.getNamespace(), parsed.getPayload().get(1).getNamespace());
         assertEquals(BODY_EXTENSION.getElementName(), parsed.getPayload().get(1).getElementName());
-        assertEquals(BODY_EXTENSION.getText(), ((BodyElement) parsed.getPayload().get(1)).getText());
+        assertEquals(BODY_EXTENSION.getMessage(), ((Message.Body) parsed.getPayload().get(1)).getMessage());
     }
 
     @Test
@@ -115,7 +108,7 @@ public class SignCryptElementTest {
         assertEquals(BODY_EXTENSION.getClass(), parsed.getPayload().get(1).getClass());
         assertEquals(BODY_EXTENSION.getNamespace(), parsed.getPayload().get(1).getNamespace());
         assertEquals(BODY_EXTENSION.getElementName(), parsed.getPayload().get(1).getElementName());
-        assertEquals(BODY_EXTENSION.getText(), ((BodyElement) parsed.getPayload().get(1)).getText());
+        assertEquals(BODY_EXTENSION.getMessage(), ((Message.Body) parsed.getPayload().get(1)).getMessage());
     }
 
 }
