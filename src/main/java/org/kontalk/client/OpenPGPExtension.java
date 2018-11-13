@@ -41,6 +41,8 @@ import org.xmlpull.v1.XmlPullParserException;
  *
  * Only <signcrypt/> content elements are suppported.
  *
+ * {@link org.jivesoftware.smack.packet.Message.Body} is used as payload element.
+ *
  * @author Alexander Bikadorov {@literal <bikaejkb@mail.tu-berlin.de>}
  */
 public class OpenPGPExtension implements ExtensionElement {
@@ -221,51 +223,5 @@ public class OpenPGPExtension implements ExtensionElement {
 
             return new SignCryptElement(jids, date, -1, content);
         }
-    }
-
-    /** Used as payload element. Smack has only the unusable class Message.Body. */
-    public static class BodyElement implements ExtensionElement {
-        public static final String ELEMENT_NAME = "body";
-        public static final String NAMESPACE = "jabber:client";
-
-        private final String mText;
-
-        public BodyElement(String text) {
-            mText = text;
-        }
-
-        @Override
-        public String getNamespace() {
-            return NAMESPACE;
-        }
-
-        @Override
-        public String getElementName() {
-            return ELEMENT_NAME;
-        }
-
-        public String getText() {
-            return mText;
-        }
-
-        @Override
-        public XmlStringBuilder toXML(String enclosingNamespace) {
-            return new XmlStringBuilder()
-                    .halfOpenElement(ELEMENT_NAME)
-                    .xmlnsAttribute(NAMESPACE)
-                    .rightAngleBracket()
-                    .escape(mText)
-                    .closeElement(ELEMENT_NAME);
-        }
-
-        public static class Provider extends ExtensionElementProvider<BodyElement> {
-            @Override
-            public BodyElement parse(XmlPullParser parser, int initialDepth)
-                    throws XmlPullParserException, IOException, SmackException {
-                String text = parser.nextText();
-                return new BodyElement(text);
-            }
-        }
-
     }
 }
