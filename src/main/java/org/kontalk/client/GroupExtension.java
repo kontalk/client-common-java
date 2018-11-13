@@ -23,12 +23,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.util.XmppStringUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -44,7 +47,7 @@ public class GroupExtension implements ExtensionElement {
     public static final String NAMESPACE  = "http://kontalk.org/extensions/message#group";
 
     private final String mId;
-    private final String mOwner;
+    private final Jid mOwner;
     private final Type mType;
     private final String mSubject;
     private final List<Member> mMembers;
@@ -80,22 +83,22 @@ public class GroupExtension implements ExtensionElement {
     }
 
     /** A new group extension with default type. */
-    public GroupExtension(String id, String ownerJid) {
+    public GroupExtension(String id, Jid ownerJid) {
         this(id, ownerJid, Type.NONE, null, Collections.<Member>emptyList());
     }
 
     /** A new group extension with type 'leave' or 'get'. */
-    public GroupExtension(String id, String ownerJid, Type type) {
+    public GroupExtension(String id, Jid ownerJid, Type type) {
         this(id, ownerJid, type, null, Collections.<Member>emptyList());
     }
 
     /** A new group extension with type 'set'. */
-    public GroupExtension(String id, String ownerJid, Type type, String subject) {
+    public GroupExtension(String id, Jid ownerJid, Type type, String subject) {
         this(id, ownerJid, type, subject, Collections.<Member>emptyList());
     }
 
     /** A new group extension with type 'create', 'set' or 'result'. */
-    public GroupExtension(String id, String ownerJid, Type type, String subject, Collection<Member> member) {
+    public GroupExtension(String id, Jid ownerJid, Type type, String subject, Collection<Member> member) {
         mId = id;
         mOwner = ownerJid;
         mType = type;
@@ -107,24 +110,25 @@ public class GroupExtension implements ExtensionElement {
         return mId;
     }
 
-    public String getOwner() {
+    public Jid getOwner() {
         return mOwner;
     }
 
     /** Returns a JID for this group. Only for internal use, it is not a real JID. */
-    public String getJID() {
-        return XmppStringUtils.completeJidFrom(mId, mOwner);
+    public Jid getJid() {
+        return JidCreate.fromOrThrowUnchecked(XmppStringUtils
+            .completeJidFrom(mId, mOwner));
     }
 
     public Type getType() {
         return mType;
     }
 
-    public void addMember(String jid) {
+    public void addMember(Jid jid) {
         mMembers.add(new Member(jid, Member.Operation.ADD));
     }
 
-    public void removeMember(String jid) {
+    public void removeMember(Jid jid) {
         mMembers.add(new Member(jid, Member.Operation.REMOVE));
     }
 
@@ -177,22 +181,22 @@ public class GroupExtension implements ExtensionElement {
         return buf;
     }
 
-    public static GroupExtension addCreateGroup(Stanza message, String groupId, String groupOwner, String subject, String[] members) {
+    public static GroupExtension addCreateGroup(Stanza message, String groupId, Jid groupOwner, String subject, Jid[] members) {
         List<Member> membersList = new ArrayList<>(members.length);
-        for (String m : members)
+        for (Jid m : members)
             membersList.add(new Member(m, Member.Operation.NONE));
         GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.CREATE, subject, membersList);
         message.addExtension(ext);
         return ext;
     }
 
-    public static GroupExtension addLeaveGroup(Stanza message, String groupId, String groupOwner) {
+    public static GroupExtension addLeaveGroup(Stanza message, String groupId, Jid groupOwner) {
         GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.PART);
         message.addExtension(ext);
         return ext;
     }
 
-    public static GroupExtension addEditMembers(Stanza message, String groupId, String groupOwner, String subject, String[] members, String[] addMembers, String[] removeMembers) {
+    public static GroupExtension addEditMembers(Stanza message, String groupId, Jid groupOwner, String subject, Jid[] members, Jid[] addMembers, Jid[] removeMembers) {
         if (addMembers == null && removeMembers == null)
             throw new IllegalArgumentException("At least one of add or remove members must not be null");
 
@@ -200,16 +204,16 @@ public class GroupExtension implements ExtensionElement {
             (addMembers != null ? addMembers.length : 0) +
             (removeMembers != null ? removeMembers.length : 0));
 
-        for (String m : members)
+        for (Jid m : members)
             membersList.add(new Member(m, Member.Operation.NONE));
 
         if (addMembers != null) {
-            for (String m : addMembers)
+            for (Jid m : addMembers)
                 membersList.add(new Member(m, Member.Operation.ADD));
         }
 
         if (removeMembers != null) {
-            for (String m : removeMembers)
+            for (Jid m : removeMembers)
                 membersList.add(new Member(m, Member.Operation.REMOVE));
         }
 
@@ -218,13 +222,13 @@ public class GroupExtension implements ExtensionElement {
         return ext;
     }
 
-    public static GroupExtension addSetSubject(Stanza message, String groupId, String groupOwner, String subject) {
+    public static GroupExtension addSetSubject(Stanza message, String groupId, Jid groupOwner, String subject) {
         GroupExtension ext = new GroupExtension(groupId, groupOwner, Type.SET, subject);
         message.addExtension(ext);
         return ext;
     }
 
-    public static GroupExtension addGroupInfo(Stanza message, String groupId, String groupOwner) {
+    public static GroupExtension addGroupInfo(Stanza message, String groupId, Jid groupOwner) {
         GroupExtension ext = new GroupExtension(groupId, groupOwner);
         message.addExtension(ext);
         return ext;
@@ -268,7 +272,7 @@ public class GroupExtension implements ExtensionElement {
                                 if (jid == null)
                                     continue;
 
-                                members.add(new Member(jid, op));
+                                members.add(new Member(JidCreate.from(jid), op));
                             }
                             break;
                     }
@@ -289,7 +293,7 @@ public class GroupExtension implements ExtensionElement {
                 return null;
             }
 
-            return new GroupExtension(id, owner, type, subj, members);
+            return new GroupExtension(id, JidCreate.from(owner), type, subj, members);
         }
     }
 
@@ -322,14 +326,14 @@ public class GroupExtension implements ExtensionElement {
             }
         }
 
-        public final String jid;
+        public final Jid jid;
         public final Operation operation;
 
-        public Member(String jid) {
+        public Member(Jid jid) {
             this(jid, Operation.NONE);
         }
 
-        public Member(String jid, Operation operation) {
+        public Member(Jid jid, Operation operation) {
             this.jid = jid;
             this.operation = operation;
         }
