@@ -25,6 +25,7 @@ import java.util.Collections;
 import org.jivesoftware.smack.SmackException;
 import org.junit.Before;
 import org.junit.Test;
+import org.jxmpp.jid.impl.JidCreate;
 import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -49,24 +50,27 @@ public class GroupExtensionTest {
 
     @Test
     public void testSimple() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost");
+        GroupExtension ext = new GroupExtension("mad-group",
+            JidCreate.from("david@localhost"));
 
         GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
-        assertEquals("david@localhost", parsed.getOwner());
+        assertEquals(JidCreate.from("david@localhost"), parsed.getOwner());
     }
 
     @Test
     public void testCreate() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.CREATE, "Mad group", Collections.<Member>emptyList());
-        ext.addMember("alpha@localhost");
-        ext.addMember("beta@localhost");
+        GroupExtension ext = new GroupExtension("mad-group",
+            JidCreate.from("david@localhost"), GroupExtension.Type.CREATE,
+            "Mad group", Collections.<Member>emptyList());
+        ext.addMember(JidCreate.from("alpha@localhost"));
+        ext.addMember(JidCreate.from("beta@localhost"));
 
         GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
-        assertEquals("david@localhost", parsed.getOwner());
+        assertEquals(JidCreate.from("david@localhost"), parsed.getOwner());
         assertEquals("Mad group", parsed.getSubject());
         assertNotNull(ext.getMembers());
         assertEquals(2, ext.getMembers().size());
@@ -75,24 +79,25 @@ public class GroupExtensionTest {
 
         m = ext.getMembers().get(0);
         assertNotNull(m);
-        assertEquals("alpha@localhost", m.jid);
+        assertEquals(JidCreate.from("alpha@localhost"), m.jid);
         assertEquals(Member.Operation.ADD, m.operation);
 
         m = ext.getMembers().get(1);
         assertNotNull(m);
-        assertEquals("beta@localhost", m.jid);
+        assertEquals(JidCreate.from("beta@localhost"), m.jid);
         assertEquals(Member.Operation.ADD, m.operation);
     }
 
     @Test
     public void testRemove() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.SET);
-        ext.removeMember("alpha@localhost");
+        GroupExtension ext = new GroupExtension("mad-group",
+            JidCreate.from("david@localhost"), GroupExtension.Type.SET);
+        ext.removeMember(JidCreate.from("alpha@localhost"));
 
         GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
-        assertEquals("david@localhost", parsed.getOwner());
+        assertEquals(JidCreate.from("david@localhost"), parsed.getOwner());
         assertNotNull(ext.getMembers());
         assertEquals(1, ext.getMembers().size());
 
@@ -100,18 +105,19 @@ public class GroupExtensionTest {
 
         m = ext.getMembers().get(0);
         assertNotNull(m);
-        assertEquals("alpha@localhost", m.jid);
+        assertEquals(JidCreate.from("alpha@localhost"), m.jid);
         assertEquals(Member.Operation.REMOVE, m.operation);
     }
 
     @Test
     public void testPart() throws Exception {
-        GroupExtension ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.PART);
+        GroupExtension ext = new GroupExtension("mad-group",
+            JidCreate.from("david@localhost"), GroupExtension.Type.PART);
 
         GroupExtension parsed = parse(ext.toXML(null));
         assertNotNull(parsed);
         assertEquals("mad-group", parsed.getID());
-        assertEquals("david@localhost", parsed.getOwner());
+        assertEquals(JidCreate.from("david@localhost"), parsed.getOwner());
         assertEquals(Collections.emptyList(), ext.getMembers());
     }
 

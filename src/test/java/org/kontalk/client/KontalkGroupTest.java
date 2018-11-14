@@ -35,28 +35,30 @@ public class KontalkGroupTest {
         KontalkGroupManager.KontalkGroup group;
         Message cmd;
 
-        ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.CREATE,
-            "Mad group", Collections.<GroupExtension.Member>emptyList());
-        ext.addMember("alpha@localhost");
-        ext.addMember("beta@localhost");
+        ext = new GroupExtension("mad-group", JidCreate.from("david@localhost"),
+            GroupExtension.Type.CREATE, "Mad group", Collections.<GroupExtension.Member>emptyList());
+        ext.addMember(JidCreate.from("alpha@localhost"));
+        ext.addMember(JidCreate.from("beta@localhost"));
 
         cmd = new Message(JidCreate.from("golia@localhost"));
         cmd.setFrom(JidCreate.from("charie@localhost"));
         cmd.addExtension(ext);
 
-        group = new KontalkGroupManager.KontalkGroup(null, "mad-group", "david@localhost");
+        group = new KontalkGroupManager.KontalkGroup(null, "mad-group",
+            JidCreate.from("david@localhost"));
         assertFalse(group.checkRequest(cmd));
 
-        ext = new GroupExtension("mad-group", "david@localhost", GroupExtension.Type.SET,
-            "Mad group", Collections.<GroupExtension.Member>emptyList());
-        ext.addMember("alpha@localhost");
-        ext.addMember("beta@localhost");
+        ext = new GroupExtension("mad-group", JidCreate.from("david@localhost"),
+            GroupExtension.Type.SET, "Mad group", Collections.<GroupExtension.Member>emptyList());
+        ext.addMember(JidCreate.from("alpha@localhost"));
+        ext.addMember(JidCreate.from("beta@localhost"));
 
         cmd = new Message(JidCreate.from("golia@localhost"));
         cmd.setFrom(JidCreate.from("charie@localhost"));
         cmd.addExtension(ext);
 
-        group = new KontalkGroupManager.KontalkGroup(null, "mad-group", "david@localhost");
+        group = new KontalkGroupManager.KontalkGroup(null, "mad-group",
+            JidCreate.from("david@localhost"));
         assertFalse(group.checkRequest(cmd));
     }
 
