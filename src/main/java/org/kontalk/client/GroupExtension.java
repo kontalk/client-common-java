@@ -62,7 +62,7 @@ public class GroupExtension implements ExtensionElement {
 
         private final String element;
 
-        private Type(String element) {
+        Type(String element) {
             this.element = element;
         }
 
