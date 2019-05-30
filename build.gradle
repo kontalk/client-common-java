@@ -15,7 +15,7 @@ repositories {
 }
 
 ext {
-    smackVersion = '4.3.4-SNAPSHOT'
+    smackVersion = '4.3.4'
 }
 
 tasks.withType(Checkstyle) {
