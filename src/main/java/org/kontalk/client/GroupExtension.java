@@ -306,7 +306,7 @@ public class GroupExtension implements ExtensionElement {
 
             private final String element;
 
-            private Operation(String element) {
+            Operation(String element) {
                 this.element = element;
             }
 

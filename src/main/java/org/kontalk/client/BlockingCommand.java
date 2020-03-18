@@ -55,7 +55,7 @@ public class BlockingCommand extends IQ {
     public BlockingCommand(String command, String jid) {
         this(command);
 
-        mJidList = new LinkedList<String>();
+        mJidList = new LinkedList<>();
         mJidList.add(jid);
     }
 
@@ -127,7 +127,7 @@ public class BlockingCommand extends IQ {
                         String jid = parser.getAttributeValue(null, "jid");
                         if (jid != null && jid.length() > 0) {
                             if (jidList == null)
-                                jidList = new LinkedList<String>();
+                                jidList = new LinkedList<>();
 
                             jidList.add(jid);
                         }

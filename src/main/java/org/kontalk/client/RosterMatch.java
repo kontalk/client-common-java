@@ -49,7 +49,7 @@ public class RosterMatch extends IQ {
 
     public void addItem(String jid) {
         if (mItems == null)
-            mItems = new LinkedList<String>();
+            mItems = new LinkedList<>();
         mItems.add(jid);
     }
 
@@ -87,7 +87,7 @@ public class RosterMatch extends IQ {
                 if (eventType == XmlPullParser.START_TAG) {
                     if ("item".equals(parser.getName())) {
                         if (items == null)
-                            items = new LinkedList<String>();
+                            items = new LinkedList<>();
                         String item = parser.getAttributeValue(null, "jid");
                         if (item != null)
                             items.add(item);

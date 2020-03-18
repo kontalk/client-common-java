@@ -156,7 +156,7 @@ public class AvatarMetadataExtension implements ExtensionElement {
             try {
                 return Integer.parseInt(value);
             }
-            catch (NumberFormatException ex) {
+            catch (NumberFormatException ignored) {
             }
 
             return -1;

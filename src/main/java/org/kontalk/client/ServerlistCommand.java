@@ -64,7 +64,7 @@ public class ServerlistCommand extends IQ {
 
         public void addItem(String item) {
             if (mItems == null)
-                mItems = new LinkedList<String>();
+                mItems = new LinkedList<>();
             mItems.add(item);
         }
 

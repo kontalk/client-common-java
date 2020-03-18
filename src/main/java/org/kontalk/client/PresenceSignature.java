@@ -61,11 +61,12 @@ public final class PresenceSignature implements ExtensionElement {
     @Override
     public XmlStringBuilder toXML(String enclosingNamespace) {
         return new XmlStringBuilder()
-                .halfOpenElement(ELEMENT_NAME)
-                .xmlnsAttribute(NAMESPACE)
-                .rightAngleBracket()
-                .append("[[SIGNATURE DATA; LENGTH="+mSignature.length()+"]]")
-                .closeElement(ELEMENT_NAME);
+            .halfOpenElement(ELEMENT_NAME)
+            .xmlnsAttribute(NAMESPACE)
+            .rightAngleBracket().append("[[SIGNATURE DATA; LENGTH=")
+            .append(String.valueOf(mSignature.length()))
+            .append("]]")
+            .closeElement(ELEMENT_NAME);
     }
 
     public static class Provider extends ExtensionElementProvider<PresenceSignature> {
