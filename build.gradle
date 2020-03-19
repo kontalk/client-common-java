@@ -31,12 +31,12 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-    compile "org.igniterealtime.smack:smack-core:$smackVersion"
-    compile "org.igniterealtime.smack:smack-tcp:$smackVersion"
-    compile "org.igniterealtime.smack:smack-extensions:$smackVersion"
+    implementation "org.igniterealtime.smack:smack-core:$smackVersion"
+    implementation "org.igniterealtime.smack:smack-tcp:$smackVersion"
+    implementation "org.igniterealtime.smack:smack-extensions:$smackVersion"
     implementation 'net.sf.kxml:kxml2:2.3.0'
 	testImplementation "org.igniterealtime.smack:smack-java7:$smackVersion"
-    testImplementation 'junit:junit:4.+'
+    testImplementation 'junit:junit:4.13'
 }
 
 
