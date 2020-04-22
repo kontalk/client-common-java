@@ -27,8 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.jxmpp.jid.impl.JidCreate;
 import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 import org.kontalk.client.GroupExtension.Member;
 

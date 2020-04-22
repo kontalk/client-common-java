@@ -20,10 +20,12 @@ package org.kontalk.client;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -75,14 +77,15 @@ public class VCard4 extends IQ {
     public static final class Provider extends IQProvider<VCard4> {
 
         @Override
-        public VCard4 parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public VCard4 parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false, in_key = false, in_uri = false;
             String uri = null;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     if ("key".equals(parser.getName())) {
                         in_key = true;
                     }
@@ -90,13 +93,13 @@ public class VCard4 extends IQ {
                         in_uri = true;
                     }
                 }
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     if (in_key && in_uri) {
                         uri = parser.getText();
                         in_uri = false;
                     }
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }

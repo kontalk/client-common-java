@@ -20,12 +20,13 @@ package org.kontalk.client;
 
 import java.io.IOException;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -59,7 +60,7 @@ public class OpenPGPSignedMessage implements ExtensionElement {
     }
 
     @Override
-    public StringBuilder toXML(String enclosingNamepsace) {
+    public StringBuilder toXML(XmlEnvironment xmlEnvironment) {
         return new StringBuilder()
             .append('<')
             .append(ELEMENT_NAME)
@@ -75,21 +76,22 @@ public class OpenPGPSignedMessage implements ExtensionElement {
     public static final class Provider extends ExtensionElementProvider<OpenPGPSignedMessage> {
 
         @Override
-        public OpenPGPSignedMessage parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public OpenPGPSignedMessage parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             String contents = null;
             boolean done = false;
 
             while (!done)
             {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.END_TAG)
+                if (eventType == XmlPullParser.Event.END_ELEMENT)
                 {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }
                 }
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     contents = parser.getText();
                 }
             }

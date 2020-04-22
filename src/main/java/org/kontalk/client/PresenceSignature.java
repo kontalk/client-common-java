@@ -19,12 +19,13 @@
 package org.kontalk.client;
 
 import java.io.IOException;
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
  /**
@@ -59,7 +60,7 @@ public final class PresenceSignature implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
         return new XmlStringBuilder()
             .halfOpenElement(ELEMENT_NAME)
             .xmlnsAttribute(NAMESPACE)
@@ -72,24 +73,23 @@ public final class PresenceSignature implements ExtensionElement {
     public static class Provider extends ExtensionElementProvider<PresenceSignature> {
 
         @Override
-        public PresenceSignature parse(XmlPullParser parser, int initialDepth)
-                throws XmlPullParserException, IOException, SmackException {
-
+        public PresenceSignature parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             String signature = null;
 
             boolean done = false;
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if(eventType == XmlPullParser.END_DOCUMENT ||
-                        eventType == XmlPullParser.START_TAG)
-                    throw new SmackException("invalid XML schema");
+                if(eventType == XmlPullParser.Event.END_DOCUMENT ||
+                        eventType == XmlPullParser.Event.START_ELEMENT)
+                    throw new XmlPullParserException("invalid XML schema");
 
-                if (eventType == XmlPullParser.TEXT) {
+                if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     signature = parser.getText();
                 }
 
-                if (eventType == XmlPullParser.END_TAG &&
+                if (eventType == XmlPullParser.Event.END_ELEMENT &&
                         ELEMENT_NAME.equals(parser.getName())) {
                     done = true;
                 }

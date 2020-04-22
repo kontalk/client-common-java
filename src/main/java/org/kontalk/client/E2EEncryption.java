@@ -18,12 +18,13 @@
 
 package org.kontalk.client;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -64,7 +65,7 @@ public class E2EEncryption implements ExtensionElement {
     }
 
     @Override
-    public StringBuilder toXML(String enclosingNamespace) {
+    public StringBuilder toXML(XmlEnvironment xmlEnvironment) {
         if (mEncoded == null)
             mEncoded = Base64.encodeToString(mData);
 
@@ -83,17 +84,18 @@ public class E2EEncryption implements ExtensionElement {
     public static class Provider extends ExtensionElementProvider<E2EEncryption> {
 
         @Override
-        public E2EEncryption parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public E2EEncryption parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false;
             String data = null;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.TEXT) {
+                if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     data = parser.getText();
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (ELEMENT_NAME.equals(parser.getName()))
                         done = true;
                 }

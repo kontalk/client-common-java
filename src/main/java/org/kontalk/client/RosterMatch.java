@@ -22,11 +22,12 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 /**
  * Kontalk custom roster packet.
@@ -77,14 +78,15 @@ public class RosterMatch extends IQ {
     public static final class Provider extends IQProvider<RosterMatch> {
 
         @Override
-        public RosterMatch parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public RosterMatch parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false;
             List<String> items = null;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     if ("item".equals(parser.getName())) {
                         if (items == null)
                             items = new LinkedList<>();
@@ -93,7 +95,7 @@ public class RosterMatch extends IQ {
                             items.add(item);
                     }
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }

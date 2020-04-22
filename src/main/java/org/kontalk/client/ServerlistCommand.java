@@ -18,18 +18,21 @@
 
 package org.kontalk.client;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jivesoftware.smack.packet.IQ;
 import org.jivesoftware.smack.packet.StanzaError;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smackx.commands.AdHocCommand;
 import org.jivesoftware.smackx.commands.packet.AdHocCommandData;
 import org.jivesoftware.smackx.commands.provider.AdHocCommandDataProvider;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -88,11 +91,12 @@ public class ServerlistCommand extends IQ {
          * </iq>
          */
         @Override
-        public ServerlistCommandData parse(XmlPullParser parser, int initialDepth) throws Exception {
+        public ServerlistCommandData parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false;
             ServerlistCommandData adHocCommandData = new ServerlistCommandData();
 
-            int eventType;
+            XmlPullParser.Event eventType;
             adHocCommandData.setSessionID(parser.getAttributeValue("", "sessionid"));
             adHocCommandData.setNode(parser.getAttributeValue("", "node"));
 
@@ -123,7 +127,7 @@ public class ServerlistCommand extends IQ {
             boolean in_serverlist = false;
             while (!done) {
                 eventType = parser.next();
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
 
                     if (!in_serverlist) {
                         if (parser.getName().equals(ServerlistCommandData.ELEMENT_NAME)) {
@@ -132,13 +136,7 @@ public class ServerlistCommand extends IQ {
                                 in_serverlist = true;
                             }
                         } else if (parser.getName().equals("error")) {
-                            StanzaError.Builder error;
-                            try {
-                                error = PacketParserUtils.parseError(parser);
-                            }
-                            catch (Exception e) {
-                                throw new XmlPullParserException("error parsing xml", parser, e);
-                            }
+                            StanzaError error = PacketParserUtils.parseError(parser);
                             adHocCommandData.setError(error);
                         }
                     }
@@ -151,7 +149,7 @@ public class ServerlistCommand extends IQ {
                         }
                     }
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (parser.getName().equals("command")) {
                         done = true;
                     }

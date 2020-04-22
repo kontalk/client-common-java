@@ -19,9 +19,11 @@
 package org.kontalk.client;
 
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -84,7 +86,8 @@ public class UploadInfo extends IQ {
     public static final class Provider extends IQProvider<UploadInfo> {
 
         @Override
-        public UploadInfo parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException {
+        public UploadInfo parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false, in_uri = false;
             int depth = parser.getDepth();
             String node, mime = null, uri = null;
@@ -93,9 +96,9 @@ public class UploadInfo extends IQ {
             node = parser.getAttributeValue(null, "node");
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     if ("media".equals(parser.getName()) && depth >= 0) {
                         if (parser.getDepth() == (depth + 1)) {
                             mime = parser.getAttributeValue(null, "type");
@@ -107,13 +110,13 @@ public class UploadInfo extends IQ {
                         }
                     }
                 }
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     if (in_uri) {
                         uri = parser.getText();
                         in_uri = false;
                     }
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }

@@ -22,9 +22,10 @@ import java.io.StringReader;
 
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.util.PacketParserUtils;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParserFactory;
+import org.jivesoftware.smack.xml.xpp3.Xpp3XmlPullParserFactory;
 
 
 /**
@@ -43,14 +44,10 @@ public class XMPPParserUtils {
 
     public static XmlPullParser getPullParser(String data) throws XmlPullParserException {
         if (_xmlFactory == null) {
-            _xmlFactory = XmlPullParserFactory.newInstance();
-            _xmlFactory.setNamespaceAware(true);
+            _xmlFactory = new Xpp3XmlPullParserFactory();
         }
 
-        XmlPullParser parser = _xmlFactory.newPullParser();
-        parser.setInput(new StringReader(data));
-
-        return parser;
+        return _xmlFactory.newXmlPullParser(new StringReader(data));
     }
 
     /** Parses a &lt;xmpp&gt;-wrapped message stanza. */
@@ -61,9 +58,9 @@ public class XMPPParserUtils {
         Message msg = null;
 
         while (!done) {
-            int eventType = parser.next();
+            XmlPullParser.Event eventType = parser.next();
 
-            if (eventType == XmlPullParser.START_TAG) {
+            if (eventType == XmlPullParser.Event.START_ELEMENT) {
 
                 if ("xmpp".equals(parser.getName()))
                     in_xmpp = true;
@@ -73,7 +70,7 @@ public class XMPPParserUtils {
                 }
             }
 
-            else if (eventType == XmlPullParser.END_TAG) {
+            else if (eventType == XmlPullParser.Event.END_ELEMENT) {
 
                 if ("xmpp".equals(parser.getName()))
                     done = true;

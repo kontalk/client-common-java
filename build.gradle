@@ -6,6 +6,7 @@ apply plugin: 'jacoco'
 buildscript {
     repositories {
         mavenCentral()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
 }
 
@@ -14,7 +15,8 @@ repositories {
 }
 
 ext {
-    smackVersion = '4.3.4'
+    //smackVersion = '4.4.0-alpha3-20200407.115900-6'
+    smackVersion = '4.4.0-alpha3-SNAPSHOT'
 }
 
 tasks.withType(Checkstyle) {
@@ -26,15 +28,14 @@ checkstyle {
     configFile = new File(projectDir, "config/checkstyle/checkstyle.xml")
 }
 
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     implementation "org.igniterealtime.smack:smack-core:$smackVersion"
     implementation "org.igniterealtime.smack:smack-tcp:$smackVersion"
     implementation "org.igniterealtime.smack:smack-extensions:$smackVersion"
-    implementation 'net.sf.kxml:kxml2:2.3.0'
+    implementation "org.igniterealtime.smack:smack-xmlparser-xpp3:$smackVersion"
 	testImplementation "org.igniterealtime.smack:smack-java7:$smackVersion"
     testImplementation 'junit:junit:4.13'
 }

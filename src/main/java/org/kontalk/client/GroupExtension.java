@@ -24,17 +24,18 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
 import org.jxmpp.util.XmppStringUtils;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -151,7 +152,7 @@ public class GroupExtension implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
         XmlStringBuilder buf = new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
@@ -235,15 +236,15 @@ public class GroupExtension implements ExtensionElement {
     }
 
     public static GroupExtension from(Stanza message) {
-        return message.getExtension(GroupExtension.ELEMENT_NAME, GroupExtension.NAMESPACE);
+        final ExtensionElement extension = message.getExtension(GroupExtension.ELEMENT_NAME, GroupExtension.NAMESPACE);
+        return extension instanceof GroupExtension ? (GroupExtension) extension : null;
     }
 
     public static class Provider extends ExtensionElementProvider<GroupExtension> {
 
         @Override
-        public GroupExtension parse(XmlPullParser parser, int initialDepth)
-                throws XmlPullParserException, IOException, SmackException {
-
+        public GroupExtension parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             String id = parser.getAttributeValue(null, "id");
             String owner = parser.getAttributeValue(null, "owner");
             String c = parser.getAttributeValue(null, "type");
@@ -254,12 +255,12 @@ public class GroupExtension implements ExtensionElement {
 
             boolean done = false, in_subject = false;
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if(eventType == XmlPullParser.END_DOCUMENT)
-                    throw new SmackException("invalid XML schema");
+                if(eventType == XmlPullParser.Event.END_DOCUMENT)
+                    throw new XmlPullParserException("invalid XML schema");
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     String s = parser.getName();
                     switch(s) {
                         case "subject":
@@ -276,9 +277,9 @@ public class GroupExtension implements ExtensionElement {
                             }
                             break;
                     }
-                } else if (eventType == XmlPullParser.TEXT && in_subject) {
+                } else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS && in_subject) {
                     subj = parser.getText();
-                } else if (eventType == XmlPullParser.END_TAG)
+                } else if (eventType == XmlPullParser.Event.END_ELEMENT)
                     switch (parser.getName()) {
                         case ELEMENT_NAME:
                             done = true;

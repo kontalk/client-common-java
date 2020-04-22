@@ -26,8 +26,8 @@ import java.io.StringReader;
 import org.jivesoftware.smack.SmackException;
 import org.junit.Test;
 import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 /**
  * @author Alexander Bikadorov {@literal <bikaejkb@mail.tu-berlin.de>}

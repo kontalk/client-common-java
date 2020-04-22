@@ -21,9 +21,11 @@ package org.kontalk.client;
 import java.io.IOException;
 
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -96,14 +98,15 @@ public class HTTPFileUpload {
         public static final class Provider extends IQProvider<Slot> {
 
             @Override
-            public Slot parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException {
+            public Slot parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                    throws XmlPullParserException, IOException, SmackParsingException {
                 boolean done = false, in_get_uri = false, in_put_uri = false;
                 String getUri = null, putUri = null;
 
                 while (!done) {
-                    int eventType = parser.next();
+                    XmlPullParser.Event eventType = parser.next();
 
-                    if (eventType == XmlPullParser.START_TAG) {
+                    if (eventType == XmlPullParser.Event.START_ELEMENT) {
                         if ("put".equals(parser.getName())) {
                             in_put_uri = true;
                         }
@@ -111,7 +114,7 @@ public class HTTPFileUpload {
                             in_get_uri = true;
                         }
                     }
-                    else if (eventType == XmlPullParser.TEXT) {
+                    else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                         if (in_put_uri) {
                             putUri = parser.getText();
                         }
@@ -119,7 +122,7 @@ public class HTTPFileUpload {
                             getUri = parser.getText();
                         }
                     }
-                    else if (eventType == XmlPullParser.END_TAG) {
+                    else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                         if (ELEMENT_NAME.equals(parser.getName())) {
                             done = true;
                         }

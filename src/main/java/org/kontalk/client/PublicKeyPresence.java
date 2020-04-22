@@ -18,14 +18,15 @@
 
 package org.kontalk.client;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -81,7 +82,7 @@ public class PublicKeyPresence implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
         if (mEncodedKey == null && mKey != null)
             mEncodedKey = Base64.encodeToString(mKey);
 
@@ -121,21 +122,22 @@ public class PublicKeyPresence implements ExtensionElement {
     public static class Provider extends ExtensionElementProvider<PublicKeyPresence> {
 
         @Override
-        public PublicKeyPresence parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public PublicKeyPresence parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             String key = null, print = null;
             boolean in_key = false, in_print = false, done = false;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG)
+                if (eventType == XmlPullParser.Event.START_ELEMENT)
                 {
                     if ("key".equals(parser.getName()))
                         in_key = true;
                     else if ("print".equals(parser.getName()))
                         in_print = true;
                 }
-                else if (eventType == XmlPullParser.END_TAG)
+                else if (eventType == XmlPullParser.Event.END_ELEMENT)
                 {
                     if ("key".equals(parser.getName()))
                         in_key = false;
@@ -144,7 +146,7 @@ public class PublicKeyPresence implements ExtensionElement {
                     else if (ELEMENT_NAME.equals(parser.getName()))
                         done = true;
                 }
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     if (in_key)
                         key = parser.getText();
                     else if (in_print)

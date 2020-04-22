@@ -20,13 +20,14 @@ package org.kontalk.client;
 
 import java.io.IOException;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 /**
  * Kontalk account managament extension to jabber:iq:register query.
@@ -61,9 +62,10 @@ public class Account implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
         XmlStringBuilder xml = new XmlStringBuilder()
-            .prelude(ELEMENT_NAME, NAMESPACE)
+            .halfOpenElement(ELEMENT_NAME)
+            .xmlnsAttribute(NAMESPACE)
             .rightAngleBracket();
 
         if (mPrivateKeyToken != null) {
@@ -94,15 +96,16 @@ public class Account implements ExtensionElement {
     public static final class Provider extends ExtensionElementProvider<Account> {
 
         @Override
-        public Account parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public Account parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false, in_privatekey = false;
             boolean in_priv_keydata = false, in_pub_keydata = false;
             String privKeyData = null, pubKeyData = null;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     String name = parser.getName();
                     if (in_privatekey) {
                         if ("private".equals(name)) {
@@ -116,7 +119,7 @@ public class Account implements ExtensionElement {
                         in_privatekey = true;
                     }
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     String name = parser.getName();
                     if (ELEMENT_NAME.equals(name)) {
                         done = true;
@@ -131,7 +134,7 @@ public class Account implements ExtensionElement {
                         in_pub_keydata = false;
                     }
                 }
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     if (in_privatekey) {
                         if (in_priv_keydata) {
                             privKeyData = parser.getText();

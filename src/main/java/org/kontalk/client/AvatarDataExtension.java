@@ -21,11 +21,13 @@ package org.kontalk.client;
 import java.io.IOException;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smack.util.stringencoder.Base64;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 /**
  * Avatar data extension (XEP-0084).
@@ -63,36 +65,35 @@ public class AvatarDataExtension implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
-        XmlStringBuilder buf = new XmlStringBuilder()
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
+        return new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
                 .openElement("data")
                 .append(mData)
                 .closeElement("data");
-        return buf;
     }
 
     public static final class Provider extends ExtensionElementProvider<AvatarDataExtension> {
 
         @Override
-        public AvatarDataExtension parse(XmlPullParser parser, int initialDepth)
-                throws XmlPullParserException, IOException, SmackException {
+        public AvatarDataExtension parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             boolean done = false;
 
             String data = "";
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if(eventType == XmlPullParser.END_DOCUMENT)
-                    throw new SmackException("invalid XML schema");
+                if(eventType == XmlPullParser.Event.END_DOCUMENT)
+                    throw new XmlPullParserException("invalid XML schema");
 
-                else if (eventType == XmlPullParser.TEXT) {
+                else if (eventType == XmlPullParser.Event.TEXT_CHARACTERS) {
                     data = parser.getText();
                 }
 
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (ELEMENT_NAME.equals(parser.getName())) {
                         done = true;
                     }

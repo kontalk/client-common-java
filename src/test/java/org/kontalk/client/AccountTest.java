@@ -23,7 +23,7 @@ import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jivesoftware.smackx.iqregister.packet.Registration;
 import org.junit.Test;
-import org.xmlpull.v1.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParser;
 
 import org.kontalk.util.XMPPParserUtils;
 

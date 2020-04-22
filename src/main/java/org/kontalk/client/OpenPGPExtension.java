@@ -24,16 +24,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.NamedElement;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.ExtensionElementProvider;
 import org.jivesoftware.smack.util.PacketParserUtils;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.util.XmlStringBuilder;
 import org.jxmpp.util.XmppDateTime;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -70,7 +71,7 @@ public class OpenPGPExtension implements ExtensionElement {
     }
 
     @Override
-    public XmlStringBuilder toXML(String enclosingNamespace) {
+    public CharSequence toXML(XmlEnvironment xmlEnvironment) {
         return new XmlStringBuilder()
                 .halfOpenElement(ELEMENT_NAME)
                 .xmlnsAttribute(NAMESPACE)
@@ -82,8 +83,8 @@ public class OpenPGPExtension implements ExtensionElement {
     public static class Provider extends ExtensionElementProvider<OpenPGPExtension> {
 
         @Override
-        public OpenPGPExtension parse(XmlPullParser parser, int initialDepth)
-                throws XmlPullParserException, IOException, SmackException {
+        public OpenPGPExtension parse(org.jivesoftware.smack.xml.XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+                throws XmlPullParserException, IOException, SmackParsingException {
             String base64Data = parser.nextText();
             return new OpenPGPExtension(base64Data);
         }
@@ -138,7 +139,7 @@ public class OpenPGPExtension implements ExtensionElement {
         }
 
         @Override
-        public XmlStringBuilder toXML(String enclosingNamespace) {
+        public CharSequence toXML(XmlEnvironment xmlEnvironment) {
             XmlStringBuilder buf = new XmlStringBuilder(this);
             buf.rightAngleBracket();
             for (String jid : mJIDs)
@@ -158,7 +159,8 @@ public class OpenPGPExtension implements ExtensionElement {
             return buf;
         }
 
-        public static SignCryptElement parse(String decryptedPayload) throws Exception {
+        public static SignCryptElement parse(String decryptedPayload)
+            throws XmlPullParserException, IOException, ParseException, SmackParsingException {
 
             List<String> jids = new ArrayList<>();
             Date date = null;
@@ -166,17 +168,17 @@ public class OpenPGPExtension implements ExtensionElement {
 
             XmlPullParser parser = PacketParserUtils.getParserFor(decryptedPayload);
             if (!ELEMENT_NAME.equals(parser.getName()) || !NAMESPACE.equals(parser.getNamespace()))
-                throw new ParseException("not a signcrypt element", 0);
+                throw new XmlPullParserException("not a signcrypt element");
 
             boolean done = false;
             final int initialDepth = parser.getDepth();
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if(eventType == XmlPullParser.END_DOCUMENT)
-                    throw new SmackException("invalid XML schema");
+                if(eventType == XmlPullParser.Event.END_DOCUMENT)
+                    throw new XmlPullParserException("invalid XML schema");
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     String s = parser.getName();
                     switch(s) {
                         case "to":
@@ -194,23 +196,25 @@ public class OpenPGPExtension implements ExtensionElement {
                             while (in_payload) {
                                 eventType = parser.next();
                                 switch (eventType) {
-                                    case XmlPullParser.START_TAG:
+                                    case START_ELEMENT: {
                                         String elementName = parser.getName();
                                         String namespace = parser.getNamespace();
-
+                                        XmlEnvironment xmlEnvironment = new XmlEnvironment(namespace);
                                         content.add(PacketParserUtils.parseExtensionElement(
-                                                elementName, namespace, parser));
+                                            elementName, namespace, parser, xmlEnvironment));
                                         break;
-                                    case XmlPullParser.END_TAG:
+                                    }
+                                    case END_ELEMENT: {
                                         if (parser.getDepth() == payloadDepth) {
                                             in_payload = false;
                                         }
                                         break;
+                                    }
                                 }
                             }
                             break;
                     }
-                } else if (eventType == XmlPullParser.END_TAG) {
+                } else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (parser.getDepth() == initialDepth) {
                         done = true;
                     }

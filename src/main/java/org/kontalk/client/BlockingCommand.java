@@ -24,9 +24,11 @@ import java.util.List;
 
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.XmlEnvironment;
+import org.jivesoftware.smack.parsing.SmackParsingException;
 import org.jivesoftware.smack.provider.IQProvider;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
+import org.jivesoftware.smack.xml.XmlPullParser;
+import org.jivesoftware.smack.xml.XmlPullParserException;
 
 
 /**
@@ -115,14 +117,15 @@ public class BlockingCommand extends IQ {
     public static final class Provider extends IQProvider<BlockingCommand> {
 
         @Override
-        public BlockingCommand parse(XmlPullParser parser, int initialDepth) throws XmlPullParserException, IOException, SmackException {
+        public BlockingCommand parse(XmlPullParser parser, int initialDepth, XmlEnvironment xmlEnvironment)
+            throws XmlPullParserException, IOException, SmackParsingException {
             List<String> jidList = null;
             boolean done = false;
 
             while (!done) {
-                int eventType = parser.next();
+                XmlPullParser.Event eventType = parser.next();
 
-                if (eventType == XmlPullParser.START_TAG) {
+                if (eventType == XmlPullParser.Event.START_ELEMENT) {
                     if ("item".equals(parser.getName())) {
                         String jid = parser.getAttributeValue(null, "jid");
                         if (jid != null && jid.length() > 0) {
@@ -134,7 +137,7 @@ public class BlockingCommand extends IQ {
                     }
 
                 }
-                else if (eventType == XmlPullParser.END_TAG) {
+                else if (eventType == XmlPullParser.Event.END_ELEMENT) {
                     if (BLOCKLIST.equals(parser.getName())) {
                         done = true;
                     }
